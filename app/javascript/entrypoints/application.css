@@ -2,3 +2,9 @@
 
 @plugin '@tailwindcss/typography';
 @plugin '@tailwindcss/forms';
+
+@theme {
+    --color-chaski-bg: #fbfaf9;
+    --color-chaski-green: #5f8d4e;
+    --color-chaski-green-dark: #4d7340;
+  }
