@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  devise_for :users, controllers:{
+
+    registrations: "users/registrations",
+    sessions: "users/sessions",
+
+  }
   get "home/index"
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
