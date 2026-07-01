@@ -1,4 +1,6 @@
-import { Link } from "@inertiajs/react"
+import { Link, usePage } from "@inertiajs/react"
+  
+import type { SharedProps } from "@/types"
 
 import { ChaskiLogo } from "./ChaskiLogo"
 
@@ -21,9 +23,12 @@ const defaultNavLinks: NavLink[] = [
 
 export function Header({
   navLinks = defaultNavLinks,
-  loginHref = "#",
-  signUpHref = "#",
+  loginHref = "/users/sign_in",
+  signUpHref = "/users/sign_up",
 }: HeaderProps) {
+  const { auth } = usePage<SharedProps>().props
+  const user = auth?.user
+
   return (
     <header className="h-[81px] border-b border-stone-200/60 bg-chaski-bg">
       <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-6 lg:px-10">
@@ -44,18 +49,36 @@ export function Header({
         </div>
 
         <div className="flex items-center gap-6">
-          <Link
-            href={loginHref}
-            className="text-sm font-bold text-stone-900 hover:text-chaski-green"
-          >
-            Iniciar sesión
-          </Link>
-          <Link
-            href={signUpHref}
-            className="rounded-full bg-chaski-green px-5 py-2.5 text-sm font-bold text-white hover:bg-chaski-green-dark"
-          >
-            Crear cuenta
-          </Link>
+          {user ? (
+            <>
+              <span className="text-sm font-bold text-stone-900">
+                {user.name}
+              </span>
+              <Link
+                href="/users/sign_out"
+                method="delete"
+                as="button"
+                className="text-sm font-bold text-stone-900 hover:text-chaski-green"
+              >
+                Cerrar sesión
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href={loginHref}
+                className="text-sm font-bold text-stone-900 hover:text-chaski-green"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                href={signUpHref}
+                className="rounded-full bg-chaski-green px-5 py-2.5 text-sm font-bold text-white hover:bg-chaski-green-dark"
+              >
+                Crear cuenta
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
