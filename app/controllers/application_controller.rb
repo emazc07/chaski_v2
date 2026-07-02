@@ -12,4 +12,12 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
   end
+
+  def require_admin!
+    redirect_to events_path, alert: "No autorizado" unless current_user&.admin?
+  end
+
+  def require_organizer!(event)
+    redirect_to events_mine_path, alert: "No autorizado" unless event.organizer_id == current_user&.id
+  end
 end

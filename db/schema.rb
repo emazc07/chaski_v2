@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_002029) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_231343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_002029) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "custom_location", null: false
+    t.text "description_long", null: false
+    t.string "description_short", null: false
+    t.string "difficulty", null: false
+    t.decimal "distance_km", precision: 5, scale: 2, null: false
+    t.decimal "duration_hours", precision: 4, scale: 1, null: false
+    t.integer "elevation_gain_m", null: false
+    t.integer "max_participants", null: false
+    t.text "meeting_point", null: false
+    t.bigint "organizer_id", null: false
+    t.integer "price_crc", default: 0, null: false
+    t.string "route_type", null: false
+    t.string "slug", null: false
+    t.datetime "starts_at", null: false
+    t.string "status", default: "published", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organizer_id"], name: "index_events_on_organizer_id"
+    t.index ["slug"], name: "index_events_on_slug", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false, null: false
     t.text "bio"
@@ -64,4 +87,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_002029) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "events", "users", column: "organizer_id"
 end

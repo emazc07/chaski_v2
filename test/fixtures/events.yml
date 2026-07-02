@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  organizer: one
+  title: MyString
+  slug: MyString
+  description_short: MyString
+  description_long: MyText
+  custom_location: MyString
+  difficulty: MyString
+  distance_km: 9.99
+  elevation_gain_m: 1
+  duration_hours: 9.99
+  route_type: MyString
+  starts_at: 2026-07-01 17:13:43
+  meeting_point: MyText
+  max_participants: 1
+  price_crc: 1
+  status: MyString
+
+two:
+  organizer: two
+  title: MyString
+  slug: MyString
+  description_short: MyString
+  description_long: MyText
+  custom_location: MyString
+  difficulty: MyString
+  distance_km: 9.99
+  elevation_gain_m: 1
+  duration_hours: 9.99
+  route_type: MyString
+  starts_at: 2026-07-01 17:13:43
+  meeting_point: MyText
+  max_participants: 1
+  price_crc: 1
+  status: MyString
