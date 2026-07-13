@@ -1,50 +1,48 @@
-type FormFieldProps = {
+type SelectOption = {
+  value: string
+  label: string
+}
+
+type FormSelectFieldProps = {
   id: string
   label: string
-  type?: React.HTMLInputTypeAttribute
   value: string
   onChange: (value: string) => void
+  options: SelectOption[]
   error?: string
   placeholder?: string
-  autoComplete?: string
-  min?: string | number
-  max?: string | number
-  step?: string | number
 }
 
 const inputClassName =
   "w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 
-export default function FormField({
+export default function FormSelectField({
   id,
   label,
-  type = "text",
   value,
   onChange,
+  options,
   error,
-  placeholder,
-  autoComplete,
-  min,
-  max,
-  step,
-}: FormFieldProps) {
+  placeholder = "Seleccionar...",
+}: FormSelectFieldProps) {
   return (
     <div>
       <label htmlFor={id} className="mb-1 block text-sm font-medium text-gray-700">
         {label}
       </label>
-      <input
+      <select
         id={id}
-        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={inputClassName}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        min={min}
-        max={max}
-        step={step}
-      />
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   )
