@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "hikes/mine"
   devise_for :users, controllers:{
 
     registrations: "users/registrations",
@@ -15,6 +16,11 @@ Rails.application.routes.draw do
   get    "/events/:id/edit", to: "events#edit"
   patch  "/events/:id",      to: "events#update"
   delete "/events/:id",      to: "events#destroy"
+
+  get "/hikes/mine", to: "hikes#mine"
+
+  post   "/events/:event_id/inscription", to: "inscriptions#create"
+  delete "/events/:event_id/inscription", to: "inscriptions#destroy"
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
   constraints(host: "127.0.0.1") do

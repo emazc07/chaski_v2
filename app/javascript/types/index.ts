@@ -25,6 +25,36 @@ export type Event = {
   updated_at: string
 }
 
+export type Inscription = {
+
+  id: number
+  status: string
+
+}
+
+export type HikeInscription = {
+  
+  id: number
+  status: string
+  event: Pick<
+    Event,
+    | "id"
+    | "title"
+    | "slug"
+    | "custom_location"
+    | "description_short"
+    | "difficulty"
+    | "starts_at"
+    | "status"
+  >
+
+}
+
+export type FeaturedEvent = Pick<
+  Event,
+  "id" | "title" | "custom_location" | "description_short" | "difficulty" | "starts_at"
+>
+
 export type AuthUser = {
   id: number
   name: string
