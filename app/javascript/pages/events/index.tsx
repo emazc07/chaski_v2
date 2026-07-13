@@ -1,54 +1,78 @@
 import { Head, Link } from "@inertiajs/react"
 
-import PublicLayout from "@/components/layout/PublicLayout"
+import { HikesGrid } from "@/components/events/HikesGrid"
+import { HeroBanner } from "@/components/home/HeroBanner"
 import { ChaskiHow } from "@/components/layout/ChaskiHow"
-import type { Event } from "@/types"
+import PublicLayout from "@/components/layout/PublicLayout"
 
-export default function EventsIndex({ events }: { events: Event[] }) {
+import type { EventListItem } from "@/types"
+
+type EventsIndexProps = {
+  events: EventListItem[]
+  total_count: number
+}
+
+export default function EventsIndex({ events, total_count }: EventsIndexProps) {
+  const showViewAllLink = total_count > events.length
+
   return (
     <PublicLayout>
-      <Head title="Caminatas" />
+      <Head title="Chaski — Caminatas" />
 
-      <div className="mx-auto max-w-3xl px-6 pt-8 pb-12">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Caminatas</h1>
-          <p className="mt-2 text-gray-600">
-            Explora caminatas publicadas por la comunidad.
-          </p>
+      <HeroBanner />
+
+      <div id="proximas-caminatas" className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
+        <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-stone-900">
+              Próximas caminatas
+            </h1>
+            <p className="mt-1 text-sm text-stone-500">
+              Descubrí lo que se viene este mes
+            </p>
+          </div>
+
+          {showViewAllLink && (
+            <Link
+              href="/events/all"
+              className="inline-flex items-center gap-1 text-sm font-bold text-chaski-green hover:text-chaski-green-dark"
+            >
+              Ver todas las caminatas
+              <ArrowRightIcon />
+            </Link>
+          )}
         </header>
 
-        <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          {events.length === 0 ? (
-            <p className="text-gray-700">No hay caminatas publicadas aún.</p>
-          ) : (
-            <ul className="space-y-4">
-              {events.map((event) => (
-                <li
-                  key={event.id}
-                  className="flex items-center justify-between gap-4 border-b border-gray-100 pb-4 last:border-0"
-                >
-                  <div>
-                    <h2 className="font-semibold text-gray-900">{event.title}</h2>
-                    <p className="text-gray-600">{event.custom_location}</p>
-                    <p className="text-sm text-gray-500">
-                      {event.starts_at?.slice(0, 10)} · {event.difficulty}
-                    </p>
-                    <p className="text-sm text-gray-700">{event.description_short}</p>
-                  </div>
-
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="shrink-0 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Ver
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        {events.length === 0 ? (
+          <p className="rounded-xl border border-stone-200 bg-white p-6 text-center text-sm text-stone-600 shadow-sm">
+            No hay caminatas publicadas aún.
+          </p>
+        ) : (
+          <HikesGrid events={events} />
+        )}
       </div>
       <ChaskiHow/>
     </PublicLayout>
   )
 }
+
+function ArrowRightIcon() {
+  return (
+    <svg
+      aria-hidden
+      className="h-3.5 w-3.5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  )
+}
+
+
+
+
+
+
