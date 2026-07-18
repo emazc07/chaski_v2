@@ -1,17 +1,20 @@
 class Event < ApplicationRecord
   belongs_to :organizer, class_name: "User"
 
+  has_many :inscriptions, dependent: :destroy
+  has_many :hikers, through: :inscriptions, source: :user
+
   enum :difficulty, {
     easy: "easy",
     moderate: "moderate",
     hard: "hard",
-    extreme: "extreme",
+    extreme: "extreme"
   }
 
   enum :route_type, {
     loop: "loop",
     out_and_back: "out_and_back",
-    point_to_point: "point_to_point",
+    point_to_point: "point_to_point"
   }
 
   enum :status, {
@@ -19,7 +22,7 @@ class Event < ApplicationRecord
     published: "published",
     rejected: "rejected",
     cancelled: "cancelled",
-    completed: "completed",
+    completed: "completed"
   }
 
   validates :title, :description_short, :description_long, :custom_location,
