@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   get    "/events",          to: "events#index"
   get    "/events/mine",     to: "events#mine"
+  get    "/events/all",      to: "events#all"
   get    "/events/new",      to: "events#new"
   post   "/events",          to: "events#create"
   get    "/events/:id",      to: "events#show"
@@ -16,8 +17,10 @@ Rails.application.routes.draw do
   patch  "/events/:id",      to: "events#update"
   delete "/events/:id",      to: "events#destroy"
 
-  get "events/all", to: "events#all"
   get "/hikes/mine", to: "hikes#mine"
+
+  post   "/events/:event_id/inscription", to: "inscriptions#create"
+  delete "/events/:event_id/inscription", to: "inscriptions#destroy"
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
   constraints(host: "127.0.0.1") do
