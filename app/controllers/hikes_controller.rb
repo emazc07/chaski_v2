@@ -26,7 +26,7 @@ class HikesController < InertiaController
       past: past.reverse,       # most recent past first
       cancelled: cancelled.reverse,
       next_hike: upcoming.first,
-      featured_events: Event.published.order(starts_at: :asc).limit(3),
+      featured_events: Event.published.order(starts_at: :asc).limit(3)
     }
   end
 
@@ -37,8 +37,8 @@ class HikesController < InertiaController
       id: inscription.id,
       status: inscription.status,
       event: inscription.event.as_json(
-        only: [:id, :title, :slug, :custom_location, :description_short, :difficulty, :starts_at, :status]
-      ),
+        only: [ :id, :title, :slug, :custom_location, :description_short, :difficulty, :starts_at, :status ]
+      )
     }
   end
 end

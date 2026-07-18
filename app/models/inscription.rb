@@ -6,6 +6,6 @@ class Inscription < ApplicationRecord
     active: "active",
     cancelled: "cancelled",
     attended: "attended",
-    no_show: "no_show",
+    no_show: "no_show"
   }
 end
