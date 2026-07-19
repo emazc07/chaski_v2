@@ -18,9 +18,7 @@ export default function EventsEdit({ event }: EventsEditProps) {
 
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Editar evento</h1>
-        <p className="mt-2 text-gray-600">
-          Modifica los datos de tu caminata.
-        </p>
+        <p className="mt-2 text-gray-600">Modifica los datos de tu caminata.</p>
       </header>
 
       <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -30,6 +28,4 @@ export default function EventsEdit({ event }: EventsEditProps) {
   )
 }
 
-EventsEdit.layout = (page: ReactElement<EventsEditProps>) => (
-  <PublicLayout>{page}</PublicLayout>
-)
+EventsEdit.layout = (page: ReactElement<EventsEditProps>) => <PublicLayout>{page}</PublicLayout>

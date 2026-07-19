@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react"
-      
+
 import PublicLayout from "@/components/layout/PublicLayout"
 
 import type { Event } from "@/types"
@@ -12,9 +12,7 @@ export default function EventsMine({ events }: { events: Event[] }) {
       <div className="mx-auto max-w-3xl px-6 pt-8 pb-12">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Mis eventos</h1>
-          <p className="mt-2 text-gray-600">
-            Administra las caminatas que organizas.
-          </p>
+          <p className="mt-2 text-gray-600">Administra las caminatas que organizas.</p>
         </header>
 
         <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">

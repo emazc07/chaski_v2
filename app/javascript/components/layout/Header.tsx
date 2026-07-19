@@ -1,5 +1,5 @@
 import { Link, usePage } from "@inertiajs/react"
-    
+
 import type { SharedProps } from "@/types"
 
 import { ChaskiLogo } from "./ChaskiLogo"
@@ -15,9 +15,10 @@ type HeaderProps = {
   signUpHref?: string
 }
 
-function buildNavLinks(isAdmin: boolean): NavLink[] {
+function buildNavLinks(isAdmin: boolean, isLoggedIn: boolean): NavLink[] {
   return [
     { label: "Explorar caminatas", href: "/events" },
+    ...(isLoggedIn ? [{ label: "Mis caminatas", href: "/hikes/mine" }] : []),
     ...(isAdmin ? [{ label: "Mis eventos", href: "/events/mine" }] : []),
     { label: "Cómo funciona", href: "#" },
     { label: "Para organizadores", href: "#" },
@@ -31,7 +32,7 @@ export function Header({
 }: HeaderProps) {
   const { auth } = usePage<SharedProps>().props
   const user = auth?.user
-  const navLinks = navLinksProp ?? buildNavLinks(user?.admin ?? false)
+  const navLinks = navLinksProp ?? buildNavLinks(user?.admin ?? false, !!user)
 
   return (
     <header className="h-[81px] border-b border-stone-200/60 bg-chaski-bg">
@@ -55,9 +56,7 @@ export function Header({
         <div className="flex items-center gap-6">
           {user ? (
             <>
-              <span className="text-sm font-bold text-stone-900">
-                {user.name}
-              </span>
+              <span className="text-sm font-bold text-stone-900">{user.name}</span>
               <Link
                 href="/users/sign_out"
                 method="delete"

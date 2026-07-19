@@ -14,9 +14,7 @@ export default function EventsNew() {
 
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Crear nuevo evento</h1>
-        <p className="mt-2 text-gray-600">
-          Completa los datos para publicar una caminata.
-        </p>
+        <p className="mt-2 text-gray-600">Completa los datos para publicar una caminata.</p>
       </header>
 
       <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -26,6 +24,4 @@ export default function EventsNew() {
   )
 }
 
-EventsNew.layout = (page: ReactElement<EventsNewProps>) => (
-  <PublicLayout>{page}</PublicLayout>
-)
+EventsNew.layout = (page: ReactElement<EventsNewProps>) => <PublicLayout>{page}</PublicLayout>

@@ -1,6 +1,9 @@
 class Event < ApplicationRecord
   belongs_to :organizer, class_name: "User"
 
+  has_many :inscriptions, dependent: :destroy
+  has_many :hikers, through: :inscriptions, source: :user
+
   enum :difficulty, {
     easy: "easy",
     moderate: "moderate",
