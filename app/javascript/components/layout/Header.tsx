@@ -1,5 +1,5 @@
 import { Link, usePage } from "@inertiajs/react"
-    
+
 import type { SharedProps } from "@/types"
 
 import { ChaskiLogo } from "./ChaskiLogo"
@@ -56,9 +56,7 @@ export function Header({
         <div className="flex items-center gap-6">
           {user ? (
             <>
-              <span className="text-sm font-bold text-stone-900">
-                {user.name}
-              </span>
+              <span className="text-sm font-bold text-stone-900">{user.name}</span>
               <Link
                 href="/users/sign_out"
                 method="delete"

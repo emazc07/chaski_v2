@@ -166,8 +166,7 @@ export default function HikesMine({
                   <h3 className="font-semibold text-gray-900">{event.title}</h3>
                   <p className="mt-1 text-sm text-gray-600">{event.custom_location}</p>
                   <p className="mt-1 text-xs text-gray-500">
-                    {formatEventDateLong(event.starts_at)} ·{" "}
-                    {difficultyFormLabel(event.difficulty)}
+                    {formatEventDateLong(event.starts_at)} · {difficultyFormLabel(event.difficulty)}
                   </p>
                   <Link
                     href={`/events/${event.id}`}

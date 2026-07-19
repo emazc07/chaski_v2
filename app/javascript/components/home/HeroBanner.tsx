@@ -54,19 +54,16 @@ export function HeroBanner({
           <div className="absolute inset-0 flex items-center justify-center px-8 sm:px-16 lg:px-24">
             <div className="max-w-md text-center sm:max-w-lg">
               <h1 className="font-serif-display text-[1.35rem] font-bold leading-tight text-chaski-heading sm:text-[1.65rem] lg:text-[1.85rem]">
-                {title}{" "}
-                <span className="text-chaski-terracotta">{titleAccent}</span>
+                {title} <span className="text-chaski-terracotta">{titleAccent}</span>
               </h1>
               <p className="mt-3 text-xs leading-relaxed text-stone-600 sm:text-sm">
-                {subtitle.includes("\n") ? (
-                  subtitle.split("\n").map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))
-                ) : (
-                  subtitle
-                )}
+                {subtitle.includes("\n")
+                  ? subtitle.split("\n").map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))
+                  : subtitle}
               </p>
             </div>
           </div>
@@ -88,10 +85,7 @@ export function HeroBanner({
         </div>
       </div>
 
-      {showSearch && (
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        </div>
-      )}
+      {showSearch && <div className="mx-auto max-w-6xl px-6 lg:px-8"></div>}
     </section>
   )
 }
