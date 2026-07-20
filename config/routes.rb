@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers:{
+  devise_for :users, controllers: {
 
     registrations: "users/registrations",
-    sessions: "users/sessions",
+    sessions: "users/sessions"
 
   }
   get "home/index"
@@ -17,6 +17,9 @@ Rails.application.routes.draw do
   patch  "/events/:id",      to: "events#update"
   delete "/events/:id",      to: "events#destroy"
 
+    post "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#create"
+  delete "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#destroy"
+
   get "/hikes/mine", to: "hikes#mine"
 
   post   "/events/:event_id/inscription", to: "inscriptions#create"
@@ -26,7 +29,7 @@ Rails.application.routes.draw do
   constraints(host: "127.0.0.1") do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
   end
-  root 'events#index'
+  root "events#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

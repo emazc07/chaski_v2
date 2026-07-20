@@ -25,7 +25,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.rb": "bin/rubocop --force-exclusion",
+    "*.rb": "bin/rubocop -a --force-exclusion",
     "*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"

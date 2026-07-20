@@ -1,26 +1,20 @@
 class EventsController < InertiaController
-  before_action :authenticate_user!, only: [:mine, :new, :create, :edit, :update, :destroy]
-  before_action :require_admin!, only: [:mine, :new, :create, :edit, :update, :destroy]
-  before_action :set_event, only: [:show, :edit, :update, :destroy]
-  before_action -> { require_organizer!(@event) }, only: [:edit, :update, :destroy]
+  before_action :authenticate_user!, only: [ :mine, :new, :create, :edit, :update, :destroy ]
+  before_action :require_admin!, only: [ :mine, :new, :create, :edit, :update, :destroy ]
+  before_action :set_event, only: [ :show, :edit, :update, :destroy ]
+  before_action -> { require_organizer!(@event) }, only: [ :edit, :update, :destroy ]
 
   def index
     render inertia: "events/index", props: {
       events: serialized_events(Event.published.order(starts_at: :asc).limit(6)),
-      total_count: Event.published.count,
-  }
+      total_count: Event.published.count
+    }
   end
 
   def all
     render inertia: "events/all", props: {
-      events: serialized_events(Event.published.order(starts_at: :asc)),
+      events: serialized_events(Event.published.order(starts_at: :asc))
     }
-  end
-  
-  def serialized_events(events)
-    events.includes(:organizer).as_json(
-      include: { organizer: { only: [:id, :name] } }
-    )
   end
 
   def show
@@ -30,17 +24,29 @@ class EventsController < InertiaController
     end
 
     inscription = current_user&.inscriptions&.find_by(event: @event)
-    
-      render inertia: "events/show", props: {
-        event: @event,
-        can_manage: current_user&.id == @event.organizer_id,
-        inscription: inscription&.as_json(only: [:id, :status]),
-      }
+
+    marked_ids =
+      if inscription&.active?
+        inscription.gear_item_marks.pluck(:gear_item_id)
+      else
+        []
+      end
+
+    render inertia: "events/show", props: {
+      event: @event.as_json.merge(
+        "gear_items" => @event.gear_items.ordered.as_json(
+          only: [ :id, :name, :description, :required, :position ]
+        )
+      ),
+      can_manage: current_user&.id == @event.organizer_id,
+      inscription: inscription&.as_json(only: [ :id, :status ]),
+      marked_gear_item_ids: marked_ids
+    }
   end
 
   def mine
     render inertia: "events/mine", props: {
-      events: current_user.organized_events.order(created_at: :desc),
+      events: current_user.organized_events.order(created_at: :desc)
     }
   end
 
@@ -59,7 +65,11 @@ class EventsController < InertiaController
   end
 
   def edit
-    render inertia: "events/edit", props: { event: @event }
+    render inertia: "events/edit", props: {
+      event: @event.as_json(
+        include: { gear_items: { only: [ :id, :name, :description, :required, :position ] } }
+      )
+    }
   end
 
   def update
@@ -81,6 +91,12 @@ class EventsController < InertiaController
     @event = Event.find(params[:id])
   end
 
+  def serialized_events(events)
+    events.includes(:organizer).as_json(
+      include: { organizer: { only: [ :id, :name ] } }
+    )
+  end
+
   def event_params
     params.require(:event).permit(
       :title,
@@ -95,7 +111,8 @@ class EventsController < InertiaController
       :starts_at,
       :meeting_point,
       :max_participants,
-      :price_crc
+      :price_crc,
+      gear_items_attributes: [ :id, :name, :description, :required, :position, :_destroy ]
     )
   end
 end

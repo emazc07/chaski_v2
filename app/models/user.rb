@@ -8,22 +8,22 @@ class User < ApplicationRecord
                               inverse_of: :organizer
 
   has_many :inscriptions, dependent: :destroy
-  has_many :inscribed_events, through: :inscriptions, source: :event                            
+  has_many :inscribed_events, through: :inscriptions, source: :event
 
   validates :name, presence: true
 
-  # Chaski schema 
+  # Chaski schema
   enum :experience_level, {
     beginner: "beginner",
     intermediate: "intermediate",
-    advanced: "advanced",
+    advanced: "advanced"
   }
 
   enum :frequency, {
     monthly: "monthly",
     biweekly: "biweekly",
     weekly: "weekly",
-    more_often: "more_often",
+    more_often: "more_often"
   }
 
   def admin?
