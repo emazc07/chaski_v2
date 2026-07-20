@@ -1,14 +1,15 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers:{
+  devise_for :users, controllers: {
 
     registrations: "users/registrations",
-    sessions: "users/sessions",
+    sessions: "users/sessions"
 
   }
   get "home/index"
 
   get    "/events",          to: "events#index"
   get    "/events/mine",     to: "events#mine"
+  get    "/events/all",      to: "events#all"
   get    "/events/new",      to: "events#new"
   post   "/events",          to: "events#create"
   get    "/events/:id",      to: "events#show"
@@ -16,11 +17,19 @@ Rails.application.routes.draw do
   patch  "/events/:id",      to: "events#update"
   delete "/events/:id",      to: "events#destroy"
 
+    post "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#create"
+  delete "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#destroy"
+
+  get "/hikes/mine", to: "hikes#mine"
+
+  post   "/events/:event_id/inscription", to: "inscriptions#create"
+  delete "/events/:event_id/inscription", to: "inscriptions#destroy"
+
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
   constraints(host: "127.0.0.1") do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
   end
-  root 'events#index'
+  root "events#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
