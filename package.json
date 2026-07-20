@@ -8,6 +8,8 @@
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
     "prettier": "^3.9.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.64.0",
@@ -19,7 +21,16 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint app/javascript",
-    "lint:fix": "eslint app/javascript --fix"
+    "lint:fix": "eslint app/javascript --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.rb": "bin/rubocop --force-exclusion",
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,css,json}": "prettier --write"
   },
   "dependencies": {
     "@inertiajs/react": "^3.4.0",
