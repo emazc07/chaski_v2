@@ -23,7 +23,7 @@ class HikesController < InertiaController
 
     render inertia: "hikes/mine", props: {
       upcoming: upcoming,
-      past: past.reverse,       # most recent past first
+      past: past.reverse, # most recent past first
       cancelled: cancelled.reverse,
       next_hike: upcoming.first,
       featured_events: Event.published.order(starts_at: :asc).limit(3)

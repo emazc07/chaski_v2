@@ -8,6 +8,7 @@ export type AuthUser = {
   name: string
   email: string
   admin: boolean
+  avatar_url?: string | null
 }
 
 export type Inscription = {
@@ -51,6 +52,7 @@ export type HikeInscription = {
 export type EventOrganizer = {
   id: number
   name: string
+  avatar_url?: string | null
 }
 
 export type EventListItem = Pick<
