@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   patch  "/events/:id",      to: "events#update"
   delete "/events/:id",      to: "events#destroy"
 
-    post "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#create"
+  post   "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#create"
   delete "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#destroy"
 
   get "/hikes/mine", to: "hikes#mine"
