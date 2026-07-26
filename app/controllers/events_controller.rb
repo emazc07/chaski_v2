@@ -29,10 +29,13 @@ class EventsController < InertiaController
       return
     end
 
-    render inertia: "events/show", props: {
-      event: @event,
-      can_manage: current_user&.id == @event.organizer_id,
-    }
+    inscription = current_user&.inscriptions&.find_by(event: @event)
+    
+      render inertia: "events/show", props: {
+        event: @event,
+        can_manage: current_user&.id == @event.organizer_id,
+        inscription: inscription&.as_json(only: [:id, :status]),
+      }
   end
 
   def mine

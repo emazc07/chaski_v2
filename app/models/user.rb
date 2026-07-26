@@ -7,6 +7,9 @@ class User < ApplicationRecord
                               dependent: :destroy,
                               inverse_of: :organizer
 
+  has_many :inscriptions, dependent: :destroy
+  has_many :inscribed_events, through: :inscriptions, source: :event                            
+
   validates :name, presence: true
 
   # Chaski schema 
