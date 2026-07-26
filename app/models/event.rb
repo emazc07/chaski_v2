@@ -6,8 +6,8 @@ class Event < ApplicationRecord
   has_many :gear_items, dependent: :destroy
 
   accepts_nested_attributes_for :gear_items,
-                                  allow_destroy: true,
-                                  reject_if: proc { |attrs| attrs["name"].blank? }
+                                allow_destroy: true,
+                                reject_if: proc { |attrs| attrs["name"].blank? }
 
   enum :difficulty, {
     easy: "easy",
@@ -42,6 +42,51 @@ class Event < ApplicationRecord
 
   scope :published, -> { where(status: :published) }
   scope :for_organizer, ->(user) { where(organizer: user) }
+  scope :search, ->(q) {
+    return all if q.blank?
+
+    term = "%#{ActiveRecord::Base.sanitize_sql_like(q.to_s.strip)}%"
+    where("custom_location ILIKE :t OR title ILIKE :t", t: term)
+  }
+
+  PROVINCE_LABELS = {
+  "san_jose" => "San José",
+  "alajuela" => "Alajuela",
+  "cartago" => "Cartago",
+  "heredia" => "Heredia",
+  "guanacaste" => "Guanacaste",
+  "puntarenas" => "Puntarenas",
+  "limon" => "Limón"
+}.freeze
+
+scope :by_difficulty, ->(value) {
+  return all if value.blank?
+
+  where(difficulty: value)
+}
+
+scope :by_zone, ->(zone) {
+  return all if zone.blank?
+
+  name = PROVINCE_LABELS[zone.to_s]
+  return none unless name
+
+  term = "%#{ActiveRecord::Base.sanitize_sql_like(name)}%"
+  where("custom_location ILIKE ?", term)
+}
+
+scope :by_date, ->(preset) {
+  return all if preset.blank?
+
+  range =
+    case preset.to_s
+    when "week" then Time.current..1.week.from_now
+    when "month" then Time.current..1.month.from_now
+    else return all
+    end
+
+  where(starts_at: range)
+}
 
   private
 

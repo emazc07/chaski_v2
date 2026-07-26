@@ -22,6 +22,9 @@ Rails.application.routes.draw do
 
   get "/hikes/mine", to: "hikes#mine"
 
+  get "/profile", to: "profiles#show"
+  patch "/profile/avatar", to: "profiles#update_avatar"
+
   post   "/events/:event_id/inscription", to: "inscriptions#create"
   delete "/events/:event_id/inscription", to: "inscriptions#destroy"
 

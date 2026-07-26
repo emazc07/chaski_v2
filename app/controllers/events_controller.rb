@@ -12,8 +12,25 @@ class EventsController < InertiaController
   end
 
   def all
+    q = params[:q].to_s.strip.presence
+    difficulty = params[:difficulty].presence_in(Event.difficulties.keys)
+    zone = params[:zone].presence_in(Event::PROVINCE_LABELS.keys)
+    date = params[:date].presence_in(%w[week month])
+
+    events = Event.published
+      .search(q)
+      .by_difficulty(difficulty)
+      .by_zone(zone)
+      .by_date(date)
+      .order(starts_at: :asc)
+
     render inertia: "events/all", props: {
-      events: serialized_events(Event.published.order(starts_at: :asc))
+      events: serialized_events(events),
+      q: q,
+      difficulty: difficulty,
+      zone: zone,
+      date: date,
+      total_count: events.size
     }
   end
 
