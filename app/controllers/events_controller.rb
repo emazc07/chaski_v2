@@ -6,7 +6,9 @@ class EventsController < InertiaController
 
   def index
     render inertia: "events/index", props: {
-      events: serialized_events(Event.published.order(starts_at: :asc).limit(6)),
+      events: serialized_events(
+        Event.published.with_attached_cover_image.order(starts_at: :asc).limit(6)
+      ),
       total_count: Event.published.count
     }
   end
@@ -18,6 +20,7 @@ class EventsController < InertiaController
     date = params[:date].presence_in(%w[week month])
 
     events = Event.published
+      .with_attached_cover_image
       .search(q)
       .by_difficulty(difficulty)
       .by_zone(zone)
@@ -51,6 +54,8 @@ class EventsController < InertiaController
 
     render inertia: "events/show", props: {
       event: @event.as_json.merge(
+        cover_image_urls(@event)
+      ).merge(
         "gear_items" => @event.gear_items.ordered.as_json(
           only: [ :id, :name, :description, :required, :position ]
         )
@@ -63,7 +68,9 @@ class EventsController < InertiaController
 
   def mine
     render inertia: "events/mine", props: {
-      events: current_user.organized_events.order(created_at: :desc)
+      events: serialized_events(
+        current_user.organized_events.with_attached_cover_image.order(created_at: :desc)
+      )
     }
   end
 
@@ -85,7 +92,7 @@ class EventsController < InertiaController
     render inertia: "events/edit", props: {
       event: @event.as_json(
         include: { gear_items: { only: [ :id, :name, :description, :required, :position ] } }
-      )
+      ).merge(cover_image_urls(@event))
     }
   end
 
@@ -105,13 +112,24 @@ class EventsController < InertiaController
   private
 
   def set_event
-    @event = Event.find(params[:id])
+    @event = Event.with_attached_cover_image.find(params[:id])
   end
 
   def serialized_events(events)
-    events.includes(:organizer).as_json(
-      include: { organizer: { only: [ :id, :name ] } }
-    )
+    events.includes(organizer: { avatar_attachment: :blob }).map do |event|
+      json = event.as_json(include: { organizer: { only: [ :id, :name ] } })
+      json["organizer"] = (json["organizer"] || {}).merge(
+        "avatar_url" => event.organizer&.avatar_url
+      )
+      json.merge(cover_image_urls(event))
+    end
+  end
+
+  def cover_image_urls(event)
+    {
+      "cover_image_card_url" => event.cover_image_card_url,
+      "cover_image_hero_url" => event.cover_image_hero_url
+    }
   end
 
   def event_params
@@ -129,6 +147,7 @@ class EventsController < InertiaController
       :meeting_point,
       :max_participants,
       :price_crc,
+      :cover_image,
       gear_items_attributes: [ :id, :name, :description, :required, :position, :_destroy ]
     )
   end

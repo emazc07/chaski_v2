@@ -26,6 +26,7 @@ type HikeCardProps = {
 
 export function HikeCard({ event }: HikeCardProps) {
   const gradient = placeholderGradients[event.id % placeholderGradients.length]
+  const coverUrl = event.cover_image_card_url
 
   return (
     <Link
@@ -33,7 +34,11 @@ export function HikeCard({ event }: HikeCardProps) {
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative h-36 bg-stone-200">
-        <div aria-hidden className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+        {coverUrl ? (
+          <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div aria-hidden className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+        )}
         <div className="absolute left-2.5 top-2.5">
           <DifficultyBadge difficulty={event.difficulty} />
         </div>
@@ -59,12 +64,20 @@ export function HikeCard({ event }: HikeCardProps) {
           <>
             <hr className="my-2.5 border-stone-100" />
             <div className="mt-auto flex items-center gap-2">
-              <span
-                aria-hidden
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-chaski-green/15 text-[10px] font-bold text-chaski-green-dark"
-              >
-                {organizerInitials(event.organizer.name)}
-              </span>
+              {event.organizer.avatar_url ? (
+                <img
+                  src={event.organizer.avatar_url}
+                  alt=""
+                  className="h-6 w-6 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-chaski-green/15 text-[10px] font-bold text-chaski-green-dark"
+                >
+                  {organizerInitials(event.organizer.name)}
+                </span>
+              )}
               <span className="truncate text-xs font-medium text-stone-700">
                 {event.organizer.name}
               </span>

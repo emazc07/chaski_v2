@@ -97,11 +97,20 @@ export default function EventsShow({
 
       <div className="bg-chaski-bg">
         <div className="mx-auto max-w-3xl px-6 pt-8 pb-12">
-          {/* Cover placeholder — Visily uses a hero image; Active Storage deferred */}
-          <div
-            aria-hidden
-            className="h-40 rounded-lg border border-gray-200 bg-gradient-to-br from-chaski-green/20 via-chaski-bg to-gray-100"
-          />
+          {event.cover_image_hero_url ? (
+            <div className="aspect-[2/1] overflow-hidden rounded-lg border border-gray-200">
+              <img
+                src={event.cover_image_hero_url}
+                alt={event.title}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div
+              aria-hidden
+              className="aspect-[2/1] rounded-lg border border-gray-200 bg-gradient-to-br from-chaski-green/20 via-chaski-bg to-gray-100"
+            />
+          )}
 
           <Link
             href="/events"

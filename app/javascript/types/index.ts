@@ -57,7 +57,7 @@ export type EventOrganizer = {
 
 export type EventListItem = Pick<
   Event,
-  "id" | "title" | "custom_location" | "difficulty" | "starts_at"
+  "id" | "title" | "custom_location" | "difficulty" | "starts_at" | "cover_image_card_url"
 > & {
   organizer: EventOrganizer
 }
@@ -88,6 +88,8 @@ export type Event = {
   gear_items?: GearItem[]
   created_at: string
   updated_at: string
+  cover_image_card_url?: string | null
+  cover_image_hero_url?: string | null
 }
 
 export type SharedProps = {

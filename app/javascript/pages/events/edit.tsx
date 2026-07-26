@@ -41,6 +41,7 @@ export default function EventsEdit({ event }: { event: Event }) {
       meeting_point: event.meeting_point,
       max_participants: String(event.max_participants),
       price_crc: String(event.price_crc),
+      cover_image: null as File | null,
       gear_items_attributes: (event.gear_items ?? []).map((item) => ({
         id: item.id,
         name: item.name,
@@ -92,6 +93,34 @@ export default function EventsEdit({ event }: { event: Event }) {
               />
               {fieldErrors.title && (
                 <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="cover_image" className="mb-1 block text-sm font-medium text-gray-700">
+                Imagen de portada
+              </label>
+              {(event.cover_image_hero_url || event.cover_image_card_url) && (
+                <div className="mb-3 aspect-[2/1] max-w-md overflow-hidden rounded-lg border border-gray-200">
+                  <img
+                    src={event.cover_image_hero_url ?? event.cover_image_card_url ?? ""}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+              <input
+                id="cover_image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => setData("event.cover_image", e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-chaski-green/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-chaski-green-dark hover:file:bg-chaski-green/20"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                JPEG, PNG o WebP. Máx. 5 MB. Dejá vacío para conservar la imagen actual.
+              </p>
+              {fieldErrors.cover_image && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.cover_image}</p>
               )}
             </div>
 

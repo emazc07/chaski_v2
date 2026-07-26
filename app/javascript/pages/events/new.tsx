@@ -37,6 +37,7 @@ export default function EventsNew() {
       meeting_point: "",
       max_participants: "",
       price_crc: "0",
+      cover_image: null as File | null,
       gear_items_attributes: [] as GearItemFormRow[],
     },
   })
@@ -81,6 +82,23 @@ export default function EventsNew() {
               />
               {fieldErrors.title && (
                 <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="cover_image" className="mb-1 block text-sm font-medium text-gray-700">
+                Imagen de portada
+              </label>
+              <input
+                id="cover_image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => setData("event.cover_image", e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-chaski-green/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-chaski-green-dark hover:file:bg-chaski-green/20"
+              />
+              <p className="mt-1 text-xs text-gray-500">JPEG, PNG o WebP. Máx. 5 MB.</p>
+              {fieldErrors.cover_image && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.cover_image}</p>
               )}
             </div>
 
