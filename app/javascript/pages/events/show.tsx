@@ -1,15 +1,10 @@
 import { Head, Link, usePage } from "@inertiajs/react"
-    
+
 import PublicLayout from "@/components/layout/PublicLayout"
 
-import type { Event, Inscription, SharedProps } from "@/types"
+import { difficultyFormLabel } from "@/lib/difficulty"
 
-const difficultyLabels: Record<string, string> = {
-  easy: "Fácil",
-  moderate: "Moderada",
-  hard: "Difícil",
-  extreme: "Extrema",
-}
+import type { Event, Inscription, SharedProps } from "@/types"
 
 const routeTypeLabels: Record<string, string> = {
   loop: "Circuito",
@@ -80,7 +75,7 @@ export default function EventsShow({
   const isInscribed = inscription?.status === "active"
   const inscriptionUrl = `/events/${event.id}/inscription`
 
-  const difficultyLabel = difficultyLabels[event.difficulty] ?? event.difficulty
+  const difficultyLabel = difficultyFormLabel(event.difficulty)
   const routeTypeLabel = routeTypeLabels[event.route_type] ?? event.route_type
   const statusLabel = statusLabels[event.status] ?? event.status
 

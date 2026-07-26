@@ -6,8 +6,21 @@ class EventsController < InertiaController
 
   def index
     render inertia: "events/index", props: {
-      events: Event.published.order(starts_at: :asc),
+      events: serialized_events(Event.published.order(starts_at: :asc).limit(6)),
+      total_count: Event.published.count,
+  }
+  end
+
+  def all
+    render inertia: "events/all", props: {
+      events: serialized_events(Event.published.order(starts_at: :asc)),
     }
+  end
+  
+  def serialized_events(events)
+    events.includes(:organizer).as_json(
+      include: { organizer: { only: [:id, :name] } }
+    )
   end
 
   def show

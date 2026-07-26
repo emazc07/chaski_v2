@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get "hikes/mine"
   devise_for :users, controllers:{
 
     registrations: "users/registrations",
@@ -11,6 +10,7 @@ Rails.application.routes.draw do
   get    "/events",          to: "events#index"
   get    "/events/mine",     to: "events#mine"
   get    "/events/new",      to: "events#new"
+  get    "events/all",       to: "events#all"
   post   "/events",          to: "events#create"
   get    "/events/:id",      to: "events#show"
   get    "/events/:id/edit", to: "events#edit"

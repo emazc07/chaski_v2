@@ -1,26 +1,11 @@
 import { Head, Link, usePage } from "@inertiajs/react"
-  
+
 import PublicLayout from "@/components/layout/PublicLayout"
 
+import { formatEventDateLong } from "@/lib/dates"
+import { difficultyFormLabel } from "@/lib/difficulty"
+
 import type { FeaturedEvent, HikeInscription, SharedProps } from "@/types"
-
-const difficultyLabels: Record<string, string> = {
-  easy: "Fácil",
-  moderate: "Moderada",
-  hard: "Difícil",
-  extreme: "Extrema",
-}
-
-function formatDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value.slice(0, 10)
-
-  return date.toLocaleDateString("es-CR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
-}
 
 function daysUntil(value: string): number | null {
   const date = new Date(value)
@@ -106,10 +91,10 @@ export default function HikesMine({
               </span>
               <h2 className="mt-4 text-2xl font-bold">{next_hike.event.title}</h2>
               <p className="mt-2 text-sm text-white/90">
-                {formatDate(next_hike.event.starts_at)} · {next_hike.event.custom_location}
+                {formatEventDateLong(next_hike.event.starts_at)} · {next_hike.event.custom_location}
               </p>
               <span className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
-                {difficultyLabels[next_hike.event.difficulty] ?? next_hike.event.difficulty}
+                {difficultyFormLabel(next_hike.event.difficulty)}
               </span>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -181,8 +166,8 @@ export default function HikesMine({
                   <h3 className="font-semibold text-gray-900">{event.title}</h3>
                   <p className="mt-1 text-sm text-gray-600">{event.custom_location}</p>
                   <p className="mt-1 text-xs text-gray-500">
-                    {formatDate(event.starts_at)} ·{" "}
-                    {difficultyLabels[event.difficulty] ?? event.difficulty}
+                    {formatEventDateLong(event.starts_at)} ·{" "}
+                    {difficultyFormLabel(event.difficulty)}
                   </p>
                   <Link
                     href={`/events/${event.id}`}
