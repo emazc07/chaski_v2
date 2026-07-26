@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/react'
+import { createInertiaApp } from "@inertiajs/react"
 
 void createInertiaApp({
   pages: "../pages",
@@ -23,8 +23,8 @@ void createInertiaApp({
   } else {
     console.error(
       "Missing root element.\n\n" +
-      "If you see this error, it probably means you loaded Inertia.js on non-Inertia pages.\n" +
-      'Consider moving <%= vite_typescript_tag "inertia.tsx" %> to the Inertia-specific layout instead.',
+        "If you see this error, it probably means you loaded Inertia.js on non-Inertia pages.\n" +
+        'Consider moving <%= vite_typescript_tag "inertia.tsx" %> to the Inertia-specific layout instead.',
     )
   }
 })

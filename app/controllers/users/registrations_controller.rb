@@ -1,14 +1,14 @@
   # frozen_string_literal: true
-  
+
   class Users::RegistrationsController < Devise::RegistrationsController
     def new
       build_resource
       render inertia: "users/registrations/new"
     end
-  
+
     def create
       build_resource(sign_up_params)
-  
+
       if resource.save
         if resource.active_for_authentication?
           set_flash_message! :notice, :signed_up

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react'
+import { Head } from "@inertiajs/react"
 import { ChaskiHow } from "@/components/layout/ChaskiHow"
 import PublicLayout from "@/components/layout/PublicLayout"
 

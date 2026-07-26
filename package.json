@@ -2,14 +2,35 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
+    "prettier": "^3.9.5",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.64.0",
     "vite": "^8.0.16",
     "vite-plugin-ruby": "^5.2.2"
   },
   "scripts": {
-    "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json"
+    "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint app/javascript",
+    "lint:fix": "eslint app/javascript --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.rb": "bin/rubocop -a --force-exclusion",
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,css,json}": "prettier --write"
   },
   "dependencies": {
     "@inertiajs/react": "^3.4.0",

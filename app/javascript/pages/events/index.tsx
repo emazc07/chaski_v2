@@ -24,12 +24,8 @@ export default function EventsIndex({ events, total_count }: EventsIndexProps) {
       <div id="proximas-caminatas" className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
         <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-stone-900">
-              Próximas caminatas
-            </h1>
-            <p className="mt-1 text-sm text-stone-500">
-              Descubrí lo que se viene este mes
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-stone-900">Próximas caminatas</h1>
+            <p className="mt-1 text-sm text-stone-500">Descubrí lo que se viene este mes</p>
           </div>
 
           {showViewAllLink && (
@@ -51,7 +47,7 @@ export default function EventsIndex({ events, total_count }: EventsIndexProps) {
           <HikesGrid events={events} />
         )}
       </div>
-      <ChaskiHow/>
+      <ChaskiHow />
     </PublicLayout>
   )
 }
@@ -70,9 +66,3 @@ function ArrowRightIcon() {
     </svg>
   )
 }
-
-
-
-
-
-

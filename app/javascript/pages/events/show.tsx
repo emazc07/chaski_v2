@@ -4,7 +4,7 @@ import PublicLayout from "@/components/layout/PublicLayout"
 
 import { difficultyFormLabel } from "@/lib/difficulty"
 
-import type { Event, Inscription, SharedProps } from "@/types"
+import type { Event, GearItem, Inscription, SharedProps } from "@/types"
 
 const routeTypeLabels: Record<string, string> = {
   loop: "Circuito",
@@ -65,15 +65,25 @@ export default function EventsShow({
   event,
   can_manage,
   inscription,
+  marked_gear_item_ids = [],
 }: {
   event: Event
   can_manage: boolean
   inscription: Inscription | null
+  marked_gear_item_ids?: number[]
 }) {
   const { auth } = usePage<SharedProps>().props
   const user = auth?.user
   const isInscribed = inscription?.status === "active"
   const inscriptionUrl = `/events/${event.id}/inscription`
+
+  const gearItems = event.gear_items ?? []
+  const markedSet = new Set(marked_gear_item_ids)
+  const canMarkGear = Boolean(user && isInscribed)
+
+  function markUrl(item: GearItem) {
+    return `/events/${event.id}/gear_items/${item.id}/mark`
+  }
 
   const difficultyLabel = difficultyFormLabel(event.difficulty)
   const routeTypeLabel = routeTypeLabels[event.route_type] ?? event.route_type
@@ -144,6 +154,70 @@ export default function EventsShow({
               {event.description_long}
             </div>
           </section>
+
+          {gearItems.length > 0 && (
+            <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900">Equipo necesario</h2>
+              {!canMarkGear && (
+                <p className="mt-1 text-sm text-gray-500">
+                  {user
+                    ? "Inscribite para marcar lo que ya tenés."
+                    : "Inicia sesión e inscribite para marcar tu equipo."}
+                </p>
+              )}
+
+              <ul className="mt-4 divide-y divide-gray-100">
+                {gearItems.map((item) => {
+                  const marked = markedSet.has(item.id)
+
+                  return (
+                    <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                      {canMarkGear ? (
+                        <Link
+                          href={markUrl(item)}
+                          method={marked ? "delete" : "post"}
+                          as="button"
+                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs ${
+                            marked
+                              ? "border-chaski-green bg-chaski-green text-white"
+                              : "border-gray-300 bg-white text-transparent"
+                          }`}
+                          aria-label={marked ? `Desmarcar ${item.name}` : `Marcar ${item.name}`}
+                        >
+                          ✓
+                        </Link>
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-200 bg-gray-50 text-xs text-gray-400"
+                        >
+                          ✓
+                        </span>
+                      )}
+
+                      <div className="min-w-0">
+                        <p
+                          className={`text-sm font-medium ${
+                            marked ? "text-gray-500 line-through" : "text-gray-900"
+                          }`}
+                        >
+                          {item.name}
+                          {item.required && (
+                            <span className="ml-2 text-xs font-normal text-gray-500">
+                              (requerido)
+                            </span>
+                          )}
+                        </p>
+                        {item.description && (
+                          <p className="mt-0.5 text-sm text-gray-500">{item.description}</p>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          )}
 
           {!user ? (
             <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">

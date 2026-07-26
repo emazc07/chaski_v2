@@ -233,10 +233,7 @@ export default function EventForm({ event }: EventFormProps) {
               : "Crear caminata"}
         </button>
 
-        <Link
-          href="/events/mine"
-          className="text-sm font-medium text-gray-600 hover:text-gray-900"
-        >
+        <Link href="/events/mine" className="text-sm font-medium text-gray-600 hover:text-gray-900">
           Volver a mis eventos
         </Link>
       </div>

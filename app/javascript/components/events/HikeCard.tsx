@@ -33,10 +33,7 @@ export function HikeCard({ event }: HikeCardProps) {
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative h-36 bg-stone-200">
-        <div
-          aria-hidden
-          className={`absolute inset-0 bg-gradient-to-br ${gradient}`}
-        />
+        <div aria-hidden className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
         <div className="absolute left-2.5 top-2.5">
           <DifficultyBadge difficulty={event.difficulty} />
         </div>
@@ -113,11 +110,7 @@ function MapPinIcon() {
         strokeLinejoin="round"
         d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"
       />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
     </svg>
   )
 }

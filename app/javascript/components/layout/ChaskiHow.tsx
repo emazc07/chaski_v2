@@ -9,8 +9,7 @@ type Step = {
 const defaultSteps: Step[] = [
   {
     title: "Descubrí",
-    description:
-      "Encontrá caminatas según tu nivel, zona y fecha. Filtrá por lo que más te guste.",
+    description: "Encontrá caminatas según tu nivel, zona y fecha. Filtrá por lo que más te guste.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -51,8 +50,7 @@ const defaultSteps: Step[] = [
   },
   {
     title: "Caminá",
-    description:
-      "Encontrá tu próxima cumbre y conocé tu próxima tribu en el sendero.",
+    description: "Encontrá tu próxima cumbre y conocé tu próxima tribu en el sendero.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -87,9 +85,7 @@ function StepCard({ title, description, icon }: Step) {
         {icon}
       </div>
       <h3 className="mt-6 text-lg font-bold text-stone-900">{title}</h3>
-      <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-600">
-        {description}
-      </p>
+      <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-600">{description}</p>
     </div>
   )
 }
@@ -104,9 +100,7 @@ export function ChaskiHow({
       <div className="mx-auto max-w-[1440px] px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-stone-900 sm:text-4xl">{title}</h2>
-          <p className="mt-4 text-base leading-relaxed text-stone-600 sm:text-lg">
-            {subtitle}
-          </p>
+          <p className="mt-4 text-base leading-relaxed text-stone-600 sm:text-lg">{subtitle}</p>
         </div>
 
         <div className="mt-14 grid gap-12 sm:mt-16 md:grid-cols-3 md:gap-8 lg:gap-12">

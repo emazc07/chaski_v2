@@ -27,7 +27,6 @@ const defaultLegalLinks: FooterLink[] = [
   { label: "Política de privacidad", href: "#" },
 ]
 
-
 function FooterLinkList({ links }: { links: FooterLink[] }) {
   return (
     <ul className="space-y-3">
@@ -48,9 +47,7 @@ function FooterLinkList({ links }: { links: FooterLink[] }) {
 function FooterSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <h3 className="mb-4 text-[10px] font-bold tracking-wide text-stone-500 uppercase">
-        {title}
-      </h3>
+      <h3 className="mb-4 text-[10px] font-bold tracking-wide text-stone-500 uppercase">{title}</h3>
       {children}
     </div>
   )
@@ -68,9 +65,7 @@ export function Footer({
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div className="max-w-sm">
             <ChaskiLogo />
-            <p className="mt-4 text-sm leading-relaxed text-stone-600">
-              {description}
-            </p>
+            <p className="mt-4 text-sm leading-relaxed text-stone-600">{description}</p>
           </div>
 
           <FooterSection title="Plataforma">
@@ -81,8 +76,6 @@ export function Footer({
             <FooterSection title="Legal">
               <FooterLinkList links={legalLinks} />
             </FooterSection>
-
-            
           </div>
         </div>
 

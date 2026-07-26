@@ -15,6 +15,23 @@ export type Inscription = {
   status: string
 }
 
+export type GearItem = {
+  id: number
+  name: string
+  description: string | null
+  required: boolean
+  position: number
+}
+
+export type GearItemFormRow = {
+  id?: number
+  name: string
+  description?: string
+  required?: boolean
+  position?: number
+  _destroy?: boolean
+}
+
 export type HikeInscription = {
   id: number
   status: string
@@ -66,6 +83,7 @@ export type Event = {
   price_crc: number
   status: string
   organizer_id: number
+  gear_items?: GearItem[]
   created_at: string
   updated_at: string
 }
