@@ -1,10 +1,14 @@
-import { Head, Link, usePage } from "@inertiajs/react"
+import { Head, Link, router, usePage } from "@inertiajs/react"
+import { useState } from "react"
 
 import PublicLayout from "@/components/layout/PublicLayout"
+import ConfirmDialog from "@/components/ui/ConfirmDialog"
 
 import { difficultyFormLabel } from "@/lib/difficulty"
 
 import type { Event, GearItem, Inscription, SharedProps } from "@/types"
+
+const INSCRIPTION_SUCCESS_NOTICE = "Te inscribiste en la caminata"
 
 const routeTypeLabels: Record<string, string> = {
   loop: "Circuito",
@@ -72,10 +76,14 @@ export default function EventsShow({
   inscription: Inscription | null
   marked_gear_item_ids?: number[]
 }) {
-  const { auth } = usePage<SharedProps>().props
+  const { auth, flash } = usePage<SharedProps>().props
   const user = auth?.user
   const isInscribed = inscription?.status === "active"
   const inscriptionUrl = `/events/${event.id}/inscription`
+
+  const [successDismissed, setSuccessDismissed] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const successOpen = !successDismissed && flash?.notice === INSCRIPTION_SUCCESS_NOTICE
 
   const gearItems = event.gear_items ?? []
   const markedSet = new Set(marked_gear_item_ids)
@@ -83,6 +91,15 @@ export default function EventsShow({
 
   function markUrl(item: GearItem) {
     return `/events/${event.id}/gear_items/${item.id}/mark`
+  }
+
+  function confirmCancelInscription() {
+    setCancelOpen(false)
+    router.delete(inscriptionUrl)
+  }
+
+  function dismissSuccess() {
+    setSuccessDismissed(true)
   }
 
   const difficultyLabel = difficultyFormLabel(event.difficulty)
@@ -94,6 +111,28 @@ export default function EventsShow({
   return (
     <PublicLayout>
       <Head title={event.title} />
+
+      <ConfirmDialog
+        open={successOpen}
+        variant="success"
+        title="¡Inscripción confirmada!"
+        description="Ya estás inscrito en esta caminata. Podés marcar tu equipo necesario en la página del evento."
+        primaryLabel="Entendido"
+        onPrimary={dismissSuccess}
+        onClose={dismissSuccess}
+      />
+
+      <ConfirmDialog
+        open={cancelOpen}
+        variant="destructive"
+        title="¿Cancelar tu inscripción?"
+        description="Vas a dejar de estar inscrito en esta caminata. Podés volver a inscribirte después si hay cupo."
+        primaryLabel="Sí, cancelar"
+        secondaryLabel="Volver"
+        onPrimary={confirmCancelInscription}
+        onSecondary={() => setCancelOpen(false)}
+        onClose={() => setCancelOpen(false)}
+      />
 
       <div className="bg-chaski-bg">
         <div className="mx-auto max-w-3xl px-6 pt-8 pb-12">
@@ -245,15 +284,13 @@ export default function EventsShow({
               <p className="text-sm font-medium text-chaski-green-dark">
                 Ya estás inscrito en esta caminata.
               </p>
-              <Link
-                href={inscriptionUrl}
-                method="delete"
-                as="button"
+              <button
+                type="button"
                 className="mt-4 rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
-                onBefore={() => window.confirm("¿Cancelar tu inscripción?")}
+                onClick={() => setCancelOpen(true)}
               >
                 Cancelar inscripción
-              </Link>
+              </button>
             </section>
           ) : (
             <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">

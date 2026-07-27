@@ -1,6 +1,8 @@
-import { Head, Link, usePage } from "@inertiajs/react"
+import { Head, Link, router, usePage } from "@inertiajs/react"
+import { useState } from "react"
 
 import PublicLayout from "@/components/layout/PublicLayout"
+import ConfirmDialog from "@/components/ui/ConfirmDialog"
 
 import { formatEventDateLong } from "@/lib/dates"
 import { difficultyFormLabel } from "@/lib/difficulty"
@@ -37,6 +39,7 @@ export default function HikesMine({
   const { auth } = usePage<SharedProps>().props
   const user = auth?.user
   const firstName = user?.name?.split(" ")[0] ?? "caminante"
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   const quickActions: QuickAction[] = [
     { label: "Mi perfil", href: "#", disabled: true },
@@ -45,9 +48,27 @@ export default function HikesMine({
     ...(user?.admin ? [{ label: "Crear evento", href: "/events/new" }] : []),
   ]
 
+  function confirmCancelInscription() {
+    if (!next_hike) return
+    setCancelOpen(false)
+    router.delete(`/events/${next_hike.event.id}/inscription`)
+  }
+
   return (
     <PublicLayout>
       <Head title="Mis caminatas" />
+
+      <ConfirmDialog
+        open={cancelOpen}
+        variant="destructive"
+        title="¿Cancelar tu inscripción?"
+        description="Vas a dejar de estar inscrito en esta caminata. Podés volver a inscribirte después si hay cupo."
+        primaryLabel="Sí, cancelar"
+        secondaryLabel="Volver"
+        onPrimary={confirmCancelInscription}
+        onSecondary={() => setCancelOpen(false)}
+        onClose={() => setCancelOpen(false)}
+      />
 
       <div className="mx-auto max-w-5xl px-6 pt-8 pb-12">
         {next_hike ? (
@@ -104,15 +125,13 @@ export default function HikesMine({
                 >
                   Ver detalles
                 </Link>
-                <Link
-                  href={`/events/${next_hike.event.id}/inscription`}
-                  method="delete"
-                  as="button"
+                <button
+                  type="button"
                   className="rounded-full border border-white/40 px-5 py-2 text-sm font-medium text-white hover:bg-white/10"
-                  onBefore={() => window.confirm("¿Cancelar tu inscripción?")}
+                  onClick={() => setCancelOpen(true)}
                 >
                   Cancelar inscripción
-                </Link>
+                </button>
               </div>
             </div>
           </section>
