@@ -96,4 +96,5 @@ export type SharedProps = {
   auth?: {
     user: AuthUser | null
   }
+  flash?: FlashData
 }

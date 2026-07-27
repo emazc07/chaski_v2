@@ -8,4 +8,11 @@ class InertiaController < ApplicationController
       )
     }
   }
+
+  inertia_share flash: -> {
+    {
+      notice: flash[:notice],
+      alert: flash[:alert]
+    }
+  }
 end
