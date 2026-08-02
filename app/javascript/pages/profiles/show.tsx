@@ -110,7 +110,7 @@ export default function ProfilesShow() {
     {
       title: "Información personal",
       description: "Actualizá tu nombre, biografía, ubicación y foto de perfil.",
-      disabled: true,
+      href: "/profile/edit",
       icon: <GearIcon />,
     },
     {
