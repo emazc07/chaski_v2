@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chaski — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --chaski-bg: #fbfaf9;
+      --chaski-green: #5f8d4e;
+      --chaski-green-dark: #4d7340;
+      --chaski-heading: #2f4a2e;
+      --chaski-terracotta: #c86a4a;
+      --stone-200: #e7e5e4;
+      --stone-300: #d6d3d1;
+      --stone-500: #78716c;
+      --stone-600: #57534e;
+      --stone-800: #292524;
+      --stone-900: #1c1917;
+      --font-body: "Source Sans 3", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--chaski-bg);
+      color: var(--stone-800);
+      font-family: var(--font-body);
+    }
+
+    .deck {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+      padding: clamp(2rem, 5vw, 3.5rem) clamp(2rem, 6vw, 5rem) clamp(5rem, 8vw, 6.5rem);
+      background:
+        radial-gradient(ellipse 80% 60% at 100% 0%, rgba(95, 141, 78, 0.08), transparent 55%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(200, 106, 74, 0.06), transparent 50%),
+        var(--chaski-bg);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .slide-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .logo-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .logo-icon {
+      display: flex;
+      height: 5.5rem;
+      width: 5.5rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1rem;
+      background: var(--chaski-green);
+      box-shadow: 0 12px 40px rgba(95, 141, 78, 0.28);
+    }
+
+    .logo-icon svg {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .logo-wordmark {
+      font-family: var(--font-body);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--chaski-green);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-tagline {
+      margin-top: 0.25rem;
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      color: var(--stone-500);
+      font-weight: 500;
+    }
+
+    .slide-header {
+      margin-bottom: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--chaski-green);
+    }
+
+    /* Matches Chaski page titles: sans-serif, bold, tracking-tight */
+    .slide-header h1 {
+      font-family: var(--font-body);
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      color: var(--chaski-heading);
+    }
+
+    .slide-header h1 .accent {
+      color: var(--chaski-terracotta);
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 1rem;
+      min-height: 0;
+      overflow: auto;
+      animation: fadeUp 0.55s ease 0.1s both;
+    }
+
+    .lead {
+      max-width: 42rem;
+      font-size: clamp(1.05rem, 2vw, 1.2rem);
+      line-height: 1.6;
+      color: var(--stone-600);
+      font-weight: 500;
+    }
+
+    .lead em {
+      font-style: italic;
+      color: var(--chaski-heading);
+    }
+
+    .lead strong {
+      color: var(--chaski-heading);
+      font-weight: 700;
+    }
+
+    .name-note {
+      margin-top: 0.5rem;
+      max-width: 40rem;
+      padding: 1rem 1.25rem;
+      border-left: 3px solid var(--chaski-green);
+      background: rgba(95, 141, 78, 0.08);
+      border-radius: 0 0.75rem 0.75rem 0;
+      font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+      line-height: 1.55;
+      color: var(--stone-600);
+    }
+
+    .problem-list,
+    .solution-list {
+      list-style: none;
+      display: grid;
+      gap: 0.85rem;
+      max-width: 52rem;
+    }
+
+    .problem-list li,
+    .solution-list li {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1rem 1.15rem;
+      background: white;
+      border: 1px solid var(--stone-200);
+      border-radius: 0.85rem;
+      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+      line-height: 1.5;
+      color: var(--stone-600);
+      box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+    }
+
+    .problem-list .bullet,
+    .solution-list .bullet {
+      flex-shrink: 0;
+      width: 1.65rem;
+      height: 1.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 0.1rem;
+    }
+
+    .problem-list .bullet {
+      background: rgba(200, 106, 74, 0.12);
+      color: var(--chaski-terracotta);
+    }
+
+    .solution-list .bullet {
+      background: rgba(95, 141, 78, 0.15);
+      color: var(--chaski-green-dark);
+    }
+
+    .solution-list li strong {
+      color: var(--chaski-heading);
+    }
+
+    .intro-line {
+      margin-bottom: 0.15rem;
+      font-size: clamp(1.05rem, 1.8vw, 1.15rem);
+      color: var(--stone-600);
+      font-weight: 500;
+    }
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1rem, 2.5vw, 1.5rem);
+      align-items: stretch;
+    }
+
+    .value-col {
+      background: white;
+      border: 1px solid var(--stone-200);
+      border-radius: 1rem;
+      padding: clamp(1.15rem, 2.5vw, 1.5rem);
+      box-shadow: 0 1px 3px rgba(28, 25, 23, 0.05);
+    }
+
+    .value-col h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--font-body);
+      font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--chaski-heading);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--stone-200);
+    }
+
+    .value-col h2 .role-icon {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5rem;
+      background: rgba(95, 141, 78, 0.12);
+      color: var(--chaski-green);
+    }
+
+    .value-col ul {
+      list-style: none;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .value-col li {
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+      font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+      line-height: 1.45;
+      color: var(--stone-600);
+    }
+
+    .value-col li::before {
+      content: "";
+      flex-shrink: 0;
+      width: 0.45rem;
+      height: 0.45rem;
+      margin-top: 0.45rem;
+      border-radius: 50%;
+      background: var(--chaski-green);
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.55rem 0.9rem;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--stone-200);
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(28, 25, 23, 0.08);
+    }
+
+    .controls button {
+      appearance: none;
+      border: none;
+      background: var(--chaski-green);
+      color: white;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .controls button:hover:not(:disabled) {
+      background: var(--chaski-green-dark);
+    }
+
+    .controls button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .dots {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: var(--stone-300);
+      cursor: pointer;
+      transition: width 0.2s ease, background 0.2s ease, border-radius 0.2s ease;
+    }
+
+    .dot.active {
+      width: 1.35rem;
+      border-radius: 999px;
+      background: var(--chaski-green);
+    }
+
+    .slide-counter {
+      position: fixed;
+      top: 1.5rem;
+      right: clamp(1.5rem, 4vw, 3rem);
+      z-index: 20;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--stone-500);
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 1.65rem;
+      right: clamp(1.5rem, 4vw, 3rem);
+      z-index: 20;
+      font-size: 0.75rem;
+      color: var(--stone-500);
+      font-weight: 500;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .value-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .problem-list,
+      .solution-list {
+        gap: 0.65rem;
+      }
+
+      .problem-list li,
+      .solution-list li {
+        padding: 0.85rem 1rem;
+      }
+
+      .hint {
+        display: none;
+      }
+    }
+
+    @media print {
+      html, body {
+        overflow: visible;
+        height: auto;
+      }
+
+      .slide {
+        position: relative;
+        opacity: 1;
+        visibility: visible;
+        page-break-after: always;
+        min-height: 100vh;
+      }
+
+      .controls, .hint, .slide-counter {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slide-counter" id="counter">01 / 05</div>
+
+  <div class="deck" id="deck">
+    <!-- 1. Logo -->
+    <section class="slide slide-title active" data-slide="0" aria-label="Portada">
+      <div class="logo-mark">
+        <span class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path fill="white" d="M4 17 9 7l3.5 6L16 5l4 12H4z" />
+          </svg>
+        </span>
+        <div>
+          <div class="logo-wordmark">Chaski</div>
+          <p class="logo-tagline">El punto de encuentro para caminantes en Costa Rica</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Resumen -->
+    <section class="slide" data-slide="1" aria-label="Resumen">
+      <header class="slide-header">
+        <span class="eyebrow">01 — Resumen</span>
+        <h1>Qué es <span class="accent">Chaski</span></h1>
+      </header>
+      <div class="slide-body">
+        <p class="lead">
+          Plataforma web pensada para conectar a personas interesadas en hacer caminatas en Costa Rica con quienes las organizan.
+        </p>
+        <p class="lead">
+          Centraliza el <strong>descubrimiento</strong>, la <strong>inscripción</strong> y la <strong>logística</strong> de las caminatas, reemplazando la dispersión actual en grupos informales de WhatsApp y Facebook.
+        </p>
+        <aside class="name-note">
+          El nombre proviene del <em>quechua</em>: los <em>chaskis</em> eran los mensajeros del imperio Inca que recorrían rutas montañosas conectando comunidades. Una metáfora del rol de los caminantes y de la red que Chaski busca tejer entre ellos.
+        </aside>
+      </div>
+    </section>
+
+    <!-- 3. Problema -->
+    <section class="slide" data-slide="2" aria-label="Problema">
+      <header class="slide-header">
+        <span class="eyebrow">02 — Problema</span>
+        <h1>Organización dispersa en canales <span class="accent">informales</span></h1>
+      </header>
+      <div class="slide-body">
+        <p class="intro-line">La organización y el descubrimiento de caminatas en Costa Rica vive fragmentado:</p>
+        <ul class="problem-list">
+          <li>
+            <span class="bullet">1</span>
+            <span>La información está fragmentada en grupos de Facebook, WhatsApp y contactos personales.</span>
+          </li>
+          <li>
+            <span class="bullet">2</span>
+            <span>Es difícil encontrar caminatas según nivel, fecha o ubicación.</span>
+          </li>
+          <li>
+            <span class="bullet">3</span>
+            <span>WhatsApp carece de herramientas para logística: cupo, equipo recomendado, confirmaciones y recordatorios.</span>
+          </li>
+          <li>
+            <span class="bullet">4</span>
+            <span>El organizador comparte la lista de equipo como imagen suelta; el participante no puede verificarla de forma estructurada.</span>
+          </li>
+          <li>
+            <span class="bullet">5</span>
+            <span>No existe un historial visible ni una reputación verificable del organizador o del caminante.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. Solución -->
+    <section class="slide" data-slide="3" aria-label="Solución">
+      <header class="slide-header">
+        <span class="eyebrow">03 — Solución</span>
+        <h1>Una plataforma para <span class="accent">organizar y descubrir</span></h1>
+      </header>
+      <div class="slide-body">
+        <p class="intro-line">Una plataforma web donde:</p>
+        <ul class="solution-list">
+          <li>
+            <span class="bullet">✓</span>
+            <span>El <strong>organizador</strong> publica caminatas, define cupo, dificultad, ubicación y un checklist de equipo recomendado.</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span>El <strong>caminante</strong> descubre eventos, se inscribe, marca su checklist personal y construye su historial con insignias.</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span>Las organizaciones (planes superiores) pueden listar productos de hiking en una <strong>vitrina tipo clasificados</strong>; la transacción ocurre fuera de la app.</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span>En una fase posterior: un <strong>asistente conversacional con IA</strong> con recomendaciones personalizadas según el perfil del caminante y el evento.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. Propuesta de valor -->
+    <section class="slide" data-slide="4" aria-label="Propuesta de valor">
+      <header class="slide-header">
+        <span class="eyebrow">04 — Propuesta de valor</span>
+        <h1>Valor para ambos <span class="accent">lados</span></h1>
+      </header>
+      <div class="slide-body">
+        <div class="value-grid">
+          <div class="value-col">
+            <h2>
+              <span class="role-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </span>
+              Para el organizador
+            </h2>
+            <ul>
+              <li>Difusión de eventos hacia caminantes verificados</li>
+              <li>Gestión estructurada de cupo e inscripciones</li>
+              <li>Checklist personalizable por evento</li>
+              <li>Reputación y visibilidad en la plataforma</li>
+              <li>Vitrina de productos (planes Pro / Enterprise)</li>
+            </ul>
+          </div>
+          <div class="value-col">
+            <h2>
+              <span class="role-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+                </svg>
+              </span>
+              Para el caminante
+            </h2>
+            <ul>
+              <li>Descubrimiento centralizado de caminatas</li>
+              <li>Checklist de equipo claro por evento</li>
+              <li>Historial verificable de caminatas</li>
+              <li>Insignias por logros (gamificación)</li>
+              <li>Filtros por nivel, fecha y ubicación</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="controls" aria-label="Navegación de diapositivas">
+    <button type="button" id="prev" aria-label="Anterior">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <div class="dots" id="dots" role="tablist"></div>
+    <button type="button" id="next" aria-label="Siguiente">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
+  </nav>
+
+  <p class="hint">← → o clic para navegar</p>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const counter = document.getElementById("counter");
+    const dotsEl = document.getElementById("dots");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    let index = 0;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "dot" + (i === 0 ? " active" : "");
+      dot.setAttribute("aria-label", "Ir a diapositiva " + (i + 1));
+      dot.addEventListener("click", () => goTo(i));
+      dotsEl.appendChild(dot);
+    });
+
+    const dots = Array.from(dotsEl.querySelectorAll(".dot"));
+
+    function goTo(i) {
+      if (i < 0 || i >= slides.length) return;
+      slides[index].classList.remove("active");
+      dots[index].classList.remove("active");
+      index = i;
+      slides[index].classList.add("active");
+      dots[index].classList.add("active");
+      counter.textContent = String(index + 1).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+    }
+
+    prevBtn.addEventListener("click", () => goTo(index - 1));
+    nextBtn.addEventListener("click", () => goTo(index + 1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        goTo(index + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        goTo(index - 1);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        goTo(slides.length - 1);
+      }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      if (Math.abs(dx) < 50) return;
+      if (dx < 0) goTo(index + 1);
+      else goTo(index - 1);
+    }, { passive: true });
+
+    goTo(0);
+  </script>
+</body>
+</html>
