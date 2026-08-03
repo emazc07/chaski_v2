@@ -46,6 +46,8 @@ export type HikeInscription = {
     | "difficulty"
     | "starts_at"
     | "status"
+    | "cover_image_card_url"
+    | "cover_image_hero_url"
   >
 }
 
@@ -64,7 +66,14 @@ export type EventListItem = Pick<
 
 export type FeaturedEvent = Pick<
   Event,
-  "id" | "title" | "custom_location" | "description_short" | "difficulty" | "starts_at"
+  | "id"
+  | "title"
+  | "custom_location"
+  | "description_short"
+  | "difficulty"
+  | "starts_at"
+  | "cover_image_card_url"
+  | "cover_image_hero_url"
 >
 
 export type Event = {

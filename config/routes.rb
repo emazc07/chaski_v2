@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   delete "/events/:event_id/gear_items/:gear_item_id/mark", to: "gear_item_marks#destroy"
 
   get "/hikes/mine", to: "hikes#mine"
+  get "/hikes/mine/all", to: "hikes#all"
 
   get "/profile", to: "profiles#show"
   get "/profile/edit", to: "profiles#edit"

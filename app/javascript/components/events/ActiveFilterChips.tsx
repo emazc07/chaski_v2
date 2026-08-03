@@ -16,7 +16,11 @@ type ActiveFilterChipsProps = {
   difficulty?: string | null
   zone?: string | null
   date?: string | null
+  path?: string
+  only?: string[]
 }
+
+const DEFAULT_ONLY = ["events", "q", "difficulty", "zone", "date", "total_count"]
 
 function buildParams(filters: {
   q?: string | null
@@ -33,14 +37,14 @@ function buildParams(filters: {
   return params
 }
 
-function visitFilters(params: Record<string, string>) {
-  router.get("/events/all", params, {
-    preserveState: true,
-    only: ["events", "q", "difficulty", "zone", "date", "total_count"],
-  })
-}
-
-export function ActiveFilterChips({ q, difficulty, zone, date }: ActiveFilterChipsProps) {
+export function ActiveFilterChips({
+  q,
+  difficulty,
+  zone,
+  date,
+  path = "/events/all",
+  only = DEFAULT_ONLY,
+}: ActiveFilterChipsProps) {
   const chips: { key: FilterKey; label: string }[] = []
 
   if (q?.trim()) {
@@ -66,6 +70,13 @@ export function ActiveFilterChips({ q, difficulty, zone, date }: ActiveFilterChi
   if (chips.length === 0) return null
 
   const current = { q, difficulty, zone, date }
+
+  function visitFilters(params: Record<string, string>) {
+    router.get(path, params, {
+      preserveState: true,
+      only,
+    })
+  }
 
   function removeFilter(key: FilterKey) {
     visitFilters(buildParams({ ...current, [key]: null }))

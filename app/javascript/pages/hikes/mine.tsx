@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from "@inertiajs/react"
 import { useState } from "react"
 
+import { HikeListRow } from "@/components/hikes/HikeListRow"
 import PublicLayout from "@/components/layout/PublicLayout"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
 
@@ -27,6 +28,8 @@ type QuickAction = {
 }
 
 export default function HikesMine({
+  upcoming,
+  past,
   next_hike,
   featured_events,
 }: {
@@ -41,9 +44,14 @@ export default function HikesMine({
   const firstName = user?.name?.split(" ")[0] ?? "caminante"
   const [cancelOpen, setCancelOpen] = useState(false)
 
+  const otherUpcoming = upcoming.slice(1, 4)
+  const showVerTodas = upcoming.length > 4 || past.length > 0
+  const highlightCoverUrl =
+    next_hike?.event.cover_image_hero_url ?? next_hike?.event.cover_image_card_url
+
   const quickActions: QuickAction[] = [
     { label: "Mi perfil", href: "#", disabled: true },
-    { label: "Mis caminatas", href: "#", disabled: true },
+    { label: "Mis caminatas", href: "/hikes/mine/all" },
     { label: "Mis insignias", href: "#", disabled: true },
     ...(user?.admin ? [{ label: "Crear evento", href: "/events/new" }] : []),
   ]
@@ -106,34 +114,81 @@ export default function HikesMine({
               })()}
             </p>
 
-            <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-chaski-green/30 via-stone-800 to-stone-900 p-6 text-white shadow-sm">
-              <span className="inline-block rounded-full bg-chaski-green px-3 py-1 text-xs font-bold uppercase tracking-wide">
-                Próxima aventura
-              </span>
-              <h2 className="mt-4 text-2xl font-bold">{next_hike.event.title}</h2>
-              <p className="mt-2 text-sm text-white/90">
-                {formatEventDateLong(next_hike.event.starts_at)} · {next_hike.event.custom_location}
-              </p>
-              <span className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
-                {difficultyFormLabel(next_hike.event.difficulty)}
-              </span>
+            <div className="relative mt-6 overflow-hidden rounded-lg border border-gray-200 text-white shadow-sm">
+              {highlightCoverUrl ? (
+                <img
+                  src={highlightCoverUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-[center_40%]"
+                />
+              ) : (
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-br from-chaski-green/40 via-stone-800 to-stone-900"
+                />
+              )}
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/20"
+              />
+              <div className="relative p-6 sm:p-8">
+                <span className="inline-block rounded-full bg-chaski-green px-3 py-1 text-xs font-bold uppercase tracking-wide">
+                  Próxima aventura
+                </span>
+                <h2 className="mt-4 text-2xl font-bold drop-shadow-sm">{next_hike.event.title}</h2>
+                <p className="mt-2 text-sm text-white/90">
+                  {formatEventDateLong(next_hike.event.starts_at)} ·{" "}
+                  {next_hike.event.custom_location}
+                </p>
+                <span className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm">
+                  {difficultyFormLabel(next_hike.event.difficulty)}
+                </span>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href={`/events/${next_hike.event.id}`}
-                  className="rounded-full bg-chaski-green px-5 py-2 text-sm font-bold text-white hover:bg-chaski-green-dark"
-                >
-                  Ver detalles
-                </Link>
-                <button
-                  type="button"
-                  className="rounded-full border border-white/40 px-5 py-2 text-sm font-medium text-white hover:bg-white/10"
-                  onClick={() => setCancelOpen(true)}
-                >
-                  Cancelar inscripción
-                </button>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href={`/events/${next_hike.event.id}`}
+                    className="rounded-full bg-chaski-green px-5 py-2 text-sm font-bold text-white hover:bg-chaski-green-dark"
+                  >
+                    Ver detalles
+                  </Link>
+                  <button
+                    type="button"
+                    className="rounded-full border border-white/40 px-5 py-2 text-sm font-medium text-white hover:bg-white/10"
+                    onClick={() => setCancelOpen(true)}
+                  >
+                    Cancelar inscripción
+                  </button>
+                </div>
               </div>
             </div>
+
+            {otherUpcoming.length > 0 && (
+              <div className="mt-6">
+                <h2 className="text-lg font-bold text-gray-900">Otras próximas</h2>
+                <ul className="mt-3 space-y-3">
+                  {otherUpcoming.map((inscription) => (
+                    <HikeListRow key={inscription.id} inscription={inscription} />
+                  ))}
+                </ul>
+                {showVerTodas && (
+                  <Link
+                    href="/hikes/mine/all"
+                    className="mt-4 inline-block text-sm font-bold text-chaski-green hover:text-chaski-green-dark"
+                  >
+                    Ver todas mis caminatas →
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {otherUpcoming.length === 0 && showVerTodas && (
+              <Link
+                href="/hikes/mine/all"
+                className="mt-6 inline-block text-sm font-bold text-chaski-green hover:text-chaski-green-dark"
+              >
+                Ver todas mis caminatas →
+              </Link>
+            )}
           </section>
         ) : (
           <section className="mb-10 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
@@ -147,12 +202,22 @@ export default function HikesMine({
             <p className="mt-3 max-w-xl text-gray-600">
               Unite a la comunidad y descubrí caminatas publicadas cerca de vos.
             </p>
-            <Link
-              href="/events"
-              className="mt-6 inline-block rounded-full bg-chaski-green px-6 py-3 text-sm font-bold text-white hover:bg-chaski-green-dark"
-            >
-              Explorar caminatas
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/events"
+                className="inline-block rounded-full bg-chaski-green px-6 py-3 text-sm font-bold text-white hover:bg-chaski-green-dark"
+              >
+                Explorar caminatas
+              </Link>
+              {past.length > 0 && (
+                <Link
+                  href="/hikes/mine/all"
+                  className="inline-block rounded-full border border-chaski-green px-6 py-3 text-sm font-bold text-chaski-green hover:bg-chaski-green/5"
+                >
+                  Ver historial
+                </Link>
+              )}
+            </div>
           </section>
         )}
 
@@ -160,7 +225,7 @@ export default function HikesMine({
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Caminatas para vos</h2>
             <Link
-              href="/events"
+              href="/events/all"
               className="text-sm font-bold text-chaski-green hover:text-chaski-green-dark"
             >
               Ver todas →
@@ -173,28 +238,42 @@ export default function HikesMine({
             </p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-3">
-              {featured_events.map((event) => (
-                <li
-                  key={event.id}
-                  className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-                >
-                  <div
-                    aria-hidden
-                    className="mb-3 h-24 rounded-md bg-gradient-to-br from-chaski-green/20 to-gray-100"
-                  />
-                  <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                  <p className="mt-1 text-sm text-gray-600">{event.custom_location}</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {formatEventDateLong(event.starts_at)} · {difficultyFormLabel(event.difficulty)}
-                  </p>
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="mt-auto pt-4 text-sm font-medium text-chaski-green hover:text-chaski-green-dark"
+              {featured_events.map((event) => {
+                const coverUrl = event.cover_image_card_url
+                return (
+                  <li
+                    key={event.id}
+                    className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
                   >
-                    Ver →
-                  </Link>
-                </li>
-              ))}
+                    <div className="relative mb-3 h-24 overflow-hidden rounded-md bg-stone-200">
+                      {coverUrl ? (
+                        <img
+                          src={coverUrl}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          aria-hidden
+                          className="absolute inset-0 bg-gradient-to-br from-chaski-green/20 to-gray-100"
+                        />
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                    <p className="mt-1 text-sm text-gray-600">{event.custom_location}</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {formatEventDateLong(event.starts_at)} ·{" "}
+                      {difficultyFormLabel(event.difficulty)}
+                    </p>
+                    <Link
+                      href={`/events/${event.id}`}
+                      className="mt-auto pt-4 text-sm font-medium text-chaski-green hover:text-chaski-green-dark"
+                    >
+                      Ver →
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </section>

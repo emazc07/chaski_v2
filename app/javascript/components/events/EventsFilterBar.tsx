@@ -43,13 +43,19 @@ type EventsFilterBarProps = {
   difficulty?: string | null
   zone?: string | null
   date?: string | null
+  path?: string
+  only?: string[]
 }
+
+const DEFAULT_ONLY = ["events", "q", "difficulty", "zone", "date", "total_count"]
 
 export function EventsFilterBar({
   q: initialQ = "",
   difficulty: initialDifficulty = "",
   zone: initialZone = "",
   date: initialDate = "",
+  path = "/events/all",
+  only = DEFAULT_ONLY,
 }: EventsFilterBarProps) {
   const [q, setQ] = useState(initialQ ?? "")
   const [difficulty, setDifficulty] = useState(initialDifficulty ?? "")
@@ -66,9 +72,9 @@ export function EventsFilterBar({
     if (zone) params.zone = zone
     if (date) params.date = date
 
-    router.get("/events/all", params, {
+    router.get(path, params, {
       preserveState: true,
-      only: ["events", "q", "difficulty", "zone", "date", "total_count"],
+      only,
     })
   }
 
