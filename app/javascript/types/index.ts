@@ -85,6 +85,7 @@ export type Event = {
   price_crc: number
   status: string
   organizer_id: number
+  organizer?: EventOrganizer
   gear_items?: GearItem[]
   created_at: string
   updated_at: string

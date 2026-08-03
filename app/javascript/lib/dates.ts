@@ -20,6 +20,19 @@ export function formatEventDateLong(value: string): string {
   })
 }
 
+/** Hero-style date: "domingo, 24 de noviembre de 2024". */
+export function formatEventDateHero(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value.slice(0, 10)
+
+  return date.toLocaleDateString("es-CR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
 /** Formats a date-only ISO string (YYYY-MM-DD) as "7 de julio de 1998". */
 export function formatBirthday(value: string): string {
   const [year, month, day] = value.slice(0, 10).split("-").map(Number)
