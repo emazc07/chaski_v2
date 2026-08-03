@@ -1,69 +1,18 @@
 import { Head, Link, router, usePage } from "@inertiajs/react"
 import { useState } from "react"
 
+import { EventAboutSection } from "@/components/events/EventAboutSection"
+import { EventBookingCard } from "@/components/events/EventBookingCard"
+import { EventGearSection } from "@/components/events/EventGearSection"
+import { EventHero } from "@/components/events/EventHero"
+import { EventStatsRow } from "@/components/events/EventStatsRow"
+import { EventTipsCard } from "@/components/events/EventTipsCard"
 import PublicLayout from "@/components/layout/PublicLayout"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
-
-import { difficultyFormLabel } from "@/lib/difficulty"
 
 import type { Event, GearItem, Inscription, SharedProps } from "@/types"
 
 const INSCRIPTION_SUCCESS_NOTICE = "Te inscribiste en la caminata"
-
-const routeTypeLabels: Record<string, string> = {
-  loop: "Circuito",
-  out_and_back: "Ida y vuelta",
-  point_to_point: "Punto a punto",
-}
-
-const statusLabels: Record<string, string> = {
-  pending_review: "Pendiente de revisión",
-  published: "Publicada",
-  rejected: "Rechazada",
-  cancelled: "Cancelada",
-  completed: "Finalizada",
-}
-
-const statusBadgeClasses: Record<string, string> = {
-  pending_review: "border-amber-200 bg-amber-50 text-amber-800",
-  rejected: "border-red-200 bg-red-50 text-red-800",
-  cancelled: "border-gray-200 bg-gray-100 text-gray-700",
-  completed: "border-gray-200 bg-gray-100 text-gray-600",
-}
-
-function formatStartsAt(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value.slice(0, 16).replace("T", " ")
-
-  return date.toLocaleString("es-CR", {
-    dateStyle: "long",
-    timeStyle: "short",
-  })
-}
-
-function formatPrice(priceCrc: number): string {
-  if (priceCrc === 0) return "Gratis"
-
-  return new Intl.NumberFormat("es-CR", {
-    style: "currency",
-    currency: "CRC",
-    maximumFractionDigits: 0,
-  }).format(priceCrc)
-}
-
-type DetailItemProps = {
-  label: string
-  value: string
-}
-
-function DetailItem({ label, value }: DetailItemProps) {
-  return (
-    <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-      <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</dt>
-      <dd className="mt-1 text-sm font-semibold text-gray-900">{value}</dd>
-    </div>
-  )
-}
 
 export default function EventsShow({
   event,
@@ -86,7 +35,6 @@ export default function EventsShow({
   const successOpen = !successDismissed && flash?.notice === INSCRIPTION_SUCCESS_NOTICE
 
   const gearItems = event.gear_items ?? []
-  const markedSet = new Set(marked_gear_item_ids)
   const canMarkGear = Boolean(user && isInscribed)
 
   function markUrl(item: GearItem) {
@@ -102,11 +50,13 @@ export default function EventsShow({
     setSuccessDismissed(true)
   }
 
-  const difficultyLabel = difficultyFormLabel(event.difficulty)
-  const routeTypeLabel = routeTypeLabels[event.route_type] ?? event.route_type
-  const statusLabel = statusLabels[event.status] ?? event.status
-
   const showStatusBadge = can_manage && event.status !== "published"
+
+  const gearHint = !canMarkGear
+    ? user
+      ? "Inscribite para marcar lo que ya tenés."
+      : "Inicia sesión e inscribite para marcar tu equipo."
+    : undefined
 
   return (
     <PublicLayout>
@@ -135,195 +85,61 @@ export default function EventsShow({
       />
 
       <div className="bg-chaski-bg">
-        <div className="mx-auto max-w-3xl px-6 pt-8 pb-12">
-          {event.cover_image_hero_url ? (
-            <div className="aspect-[2/1] overflow-hidden rounded-lg border border-gray-200">
-              <img
-                src={event.cover_image_hero_url}
-                alt={event.title}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          ) : (
-            <div
-              aria-hidden
-              className="aspect-[2/1] rounded-lg border border-gray-200 bg-gradient-to-br from-chaski-green/20 via-chaski-bg to-gray-100"
-            />
-          )}
+        <EventHero
+          title={event.title}
+          difficulty={event.difficulty}
+          startsAt={event.starts_at}
+          location={event.custom_location}
+          coverImageUrl={event.cover_image_hero_url}
+          status={event.status}
+          showStatusBadge={showStatusBadge}
+        />
 
+        <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8 lg:py-10">
           <Link
             href="/events"
-            className="mt-6 inline-block text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="mb-6 inline-block text-sm font-medium text-stone-600 hover:text-stone-900"
           >
             ← Volver a caminatas
           </Link>
 
-          <header className="mt-6">
-            <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
-            <p className="mt-2 text-base font-medium text-chaski-green-dark">
-              {event.custom_location}
-            </p>
-            <p className="mt-3 text-lg text-gray-700">{event.description_short}</p>
+          <EventStatsRow
+            maxParticipants={event.max_participants}
+            distanceKm={event.distance_km}
+            elevationGainM={event.elevation_gain_m}
+            durationHours={event.duration_hours}
+          />
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-chaski-green/10 px-3 py-1 text-sm font-medium text-chaski-green-dark">
-                {difficultyLabel}
-              </span>
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
-                {routeTypeLabel}
-              </span>
-              {showStatusBadge && (
-                <span
-                  className={`rounded-full border px-3 py-1 text-sm font-medium ${statusBadgeClasses[event.status] ?? "border-amber-200 bg-amber-50 text-amber-800"}`}
-                >
-                  {statusLabel}
-                </span>
-              )}
+          <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start">
+            <div>
+              <EventAboutSection
+                quote={event.description_short}
+                description={event.description_long}
+              />
+
+              <EventGearSection
+                items={gearItems}
+                markedIds={marked_gear_item_ids}
+                canMark={canMarkGear}
+                markUrl={markUrl}
+                hint={gearHint}
+              />
             </div>
-          </header>
 
-          <section className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Detalles de la caminata</h2>
-
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-              <DetailItem label="Fecha y hora" value={formatStartsAt(event.starts_at)} />
-              <DetailItem label="Punto de encuentro" value={event.meeting_point} />
-              <DetailItem label="Distancia" value={`${event.distance_km} km`} />
-              <DetailItem label="Desnivel" value={`${event.elevation_gain_m} m`} />
-              <DetailItem label="Duración estimada" value={`${event.duration_hours} h`} />
-              <DetailItem label="Cupo máximo" value={`${event.max_participants} participantes`} />
-              <DetailItem label="Precio" value={formatPrice(event.price_crc)} />
-            </dl>
-          </section>
-
-          <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Descripción</h2>
-            <div className="prose prose-gray mt-4 max-w-none whitespace-pre-line text-gray-700">
-              {event.description_long}
+            <div className="space-y-4 lg:sticky lg:top-6">
+              <EventBookingCard
+                priceCrc={event.price_crc}
+                inscriptionUrl={inscriptionUrl}
+                isInscribed={isInscribed}
+                isAuthenticated={Boolean(user)}
+                organizer={event.organizer}
+                canManage={can_manage}
+                eventId={event.id}
+                onCancelClick={() => setCancelOpen(true)}
+              />
+              <EventTipsCard />
             </div>
-          </section>
-
-          {gearItems.length > 0 && (
-            <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900">Equipo necesario</h2>
-              {!canMarkGear && (
-                <p className="mt-1 text-sm text-gray-500">
-                  {user
-                    ? "Inscribite para marcar lo que ya tenés."
-                    : "Inicia sesión e inscribite para marcar tu equipo."}
-                </p>
-              )}
-
-              <ul className="mt-4 divide-y divide-gray-100">
-                {gearItems.map((item) => {
-                  const marked = markedSet.has(item.id)
-
-                  return (
-                    <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                      {canMarkGear ? (
-                        <Link
-                          href={markUrl(item)}
-                          method={marked ? "delete" : "post"}
-                          as="button"
-                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs ${
-                            marked
-                              ? "border-chaski-green bg-chaski-green text-white"
-                              : "border-gray-300 bg-white text-transparent"
-                          }`}
-                          aria-label={marked ? `Desmarcar ${item.name}` : `Marcar ${item.name}`}
-                        >
-                          ✓
-                        </Link>
-                      ) : (
-                        <span
-                          aria-hidden
-                          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-200 bg-gray-50 text-xs text-gray-400"
-                        >
-                          ✓
-                        </span>
-                      )}
-
-                      <div className="min-w-0">
-                        <p
-                          className={`text-sm font-medium ${
-                            marked ? "text-gray-500 line-through" : "text-gray-900"
-                          }`}
-                        >
-                          {item.name}
-                          {item.required && (
-                            <span className="ml-2 text-xs font-normal text-gray-500">
-                              (requerido)
-                            </span>
-                          )}
-                        </p>
-                        {item.description && (
-                          <p className="mt-0.5 text-sm text-gray-500">{item.description}</p>
-                        )}
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          )}
-
-          {!user ? (
-            <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <Link
-                href="/users/sign_in"
-                className="inline-block rounded-md bg-chaski-green px-6 py-3 text-sm font-medium text-white hover:bg-chaski-green/90"
-              >
-                Inicia sesión para inscribirte
-              </Link>
-              <p className="mt-2 text-sm text-gray-500">
-                Necesitas una cuenta para inscribirte en esta caminata.
-              </p>
-            </section>
-          ) : isInscribed ? (
-            <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-chaski-green-dark">
-                Ya estás inscrito en esta caminata.
-              </p>
-              <button
-                type="button"
-                className="mt-4 rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
-                onClick={() => setCancelOpen(true)}
-              >
-                Cancelar inscripción
-              </button>
-            </section>
-          ) : (
-            <section className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <Link
-                href={inscriptionUrl}
-                method="post"
-                as="button"
-                className="inline-block rounded-md bg-chaski-green px-6 py-3 text-sm font-medium text-white hover:bg-chaski-green/90"
-              >
-                Inscribirme
-              </Link>
-            </section>
-          )}
-
-          {can_manage && (
-            <section className="mt-6 flex flex-wrap items-center gap-3 border-t border-gray-200 pt-6">
-              <Link
-                href={`/events/${event.id}/edit`}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Editar
-              </Link>
-              <Link
-                href={`/events/${event.id}`}
-                method="delete"
-                as="button"
-                className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
-                onBefore={() => window.confirm("¿Eliminar esta caminata?")}
-              >
-                Eliminar
-              </Link>
-            </section>
-          )}
+          </div>
         </div>
       </div>
     </PublicLayout>

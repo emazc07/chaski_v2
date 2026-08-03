@@ -29,6 +29,11 @@ para servir tres propósitos:
 - [`product/user-flows.md`](./product/user-flows.md) — Flujos críticos de
   usuario: descubrimiento, registro, inscripción, creación de evento.
 
+### Implementación
+
+- [`event-detail-redesign.md`](./event-detail-redesign.md) — Guía paso a
+  paso del rediseño Visily de la página de detalle de evento.
+
 ### Técnico
 
 - [`technical/decisions.md`](./technical/decisions.md) — Registro de

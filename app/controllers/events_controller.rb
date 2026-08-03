@@ -52,14 +52,18 @@ class EventsController < InertiaController
         []
       end
 
+    event_json = @event.as_json(include: { organizer: { only: [ :id, :name ] } })
+    event_json["organizer"] = (event_json["organizer"] || {}).merge(
+      "avatar_url" => @event.organizer&.avatar_url
+    )
+    event_json.merge!(cover_image_urls(@event)).merge!(
+      "gear_items" => @event.gear_items.ordered.as_json(
+        only: [ :id, :name, :description, :required, :position ]
+      )
+    )
+
     render inertia: "events/show", props: {
-      event: @event.as_json.merge(
-        cover_image_urls(@event)
-      ).merge(
-        "gear_items" => @event.gear_items.ordered.as_json(
-          only: [ :id, :name, :description, :required, :position ]
-        )
-      ),
+      event: event_json,
       can_manage: current_user&.id == @event.organizer_id,
       inscription: inscription&.as_json(only: [ :id, :status ]),
       marked_gear_item_ids: marked_ids
@@ -112,7 +116,9 @@ class EventsController < InertiaController
   private
 
   def set_event
-    @event = Event.with_attached_cover_image.find(params[:id])
+    @event = Event.with_attached_cover_image
+      .includes(organizer: { avatar_attachment: :blob })
+      .find(params[:id])
   end
 
   def serialized_events(events)
