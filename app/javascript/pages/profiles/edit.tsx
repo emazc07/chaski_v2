@@ -17,6 +17,7 @@ type ProfileData = {
   location: string | null
   birthday: string | null
   experience_level: ExperienceLevel | null
+  whatsapp_phone: string | null
 }
 
 type ProfileField = keyof ProfileData
@@ -41,7 +42,7 @@ export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
   const serverErrors = errors ?? page.props.errors
 
   const initialErrorField = (
-    ["name", "bio", "location", "birthday", "experience_level"] as const
+    ["name", "bio", "location", "birthday", "experience_level", "whatsapp_phone"] as const
   ).find((key) => firstError(serverErrors?.[key]))
 
   const [editingField, setEditingField] = useState<ProfileField | null>(initialErrorField ?? null)
@@ -103,12 +104,19 @@ export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
     key: ProfileField
     label: string
     type: "text" | "textarea" | "date" | "select"
+    hint?: string
   }[] = [
     { key: "name", label: "Nombre completo", type: "text" },
     { key: "bio", label: "Acerca de vos", type: "textarea" },
     { key: "location", label: "Ubicación", type: "text" },
     { key: "birthday", label: "Fecha de nacimiento", type: "date" },
     { key: "experience_level", label: "Nivel de experiencia", type: "select" },
+    {
+      key: "whatsapp_phone",
+      label: "WhatsApp",
+      type: "text",
+      hint: "Con código de país, solo dígitos. Ej: 50688887777. Necesario para organizar caminatas.",
+    },
   ]
 
   return (
@@ -197,7 +205,17 @@ export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
                                 className={inputClassName}
                                 autoFocus
                                 required={field.key === "name"}
+                                inputMode={field.key === "whatsapp_phone" ? "tel" : undefined}
+                                placeholder={
+                                  field.key === "whatsapp_phone" ? "50688887777" : undefined
+                                }
                               />
+                            )}
+
+                            {field.hint && (
+                              <p className="mt-2 text-xs leading-relaxed text-stone-500">
+                                {field.hint}
+                              </p>
                             )}
 
                             {error && (
@@ -273,6 +291,7 @@ export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
                 <ul className="mt-4 space-y-3">
                   {[
                     "Solo tu nombre y “Acerca de vos” son visibles para otros usuarios.",
+                    "Tu WhatsApp se usa solo para que hikers te contacten al solicitar cupo.",
                     "Tu ubicación nos ayuda a recomendarte rutas cercanas.",
                     "El nivel de experiencia garantiza tu seguridad en rutas técnicas.",
                   ].map((item) => (

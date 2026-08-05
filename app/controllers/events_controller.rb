@@ -1,8 +1,8 @@
 class EventsController < InertiaController
-  before_action :authenticate_user!, only: [ :mine, :new, :create, :edit, :update, :destroy ]
-  before_action :require_admin!, only: [ :mine, :new, :create, :edit, :update, :destroy ]
-  before_action :set_event, only: [ :show, :edit, :update, :destroy ]
-  before_action -> { require_organizer!(@event) }, only: [ :edit, :update, :destroy ]
+  before_action :authenticate_user!, only: [ :mine, :new, :create, :edit, :update, :destroy, :regenerate_confirmation_code ]
+  before_action :require_admin!, only: [ :mine, :new, :create, :edit, :update, :destroy, :regenerate_confirmation_code ]
+  before_action :set_event, only: [ :show, :edit, :update, :destroy, :regenerate_confirmation_code ]
+  before_action -> { require_organizer!(@event) }, only: [ :edit, :update, :destroy, :regenerate_confirmation_code ]
 
   def index
     render inertia: "events/index", props: {
@@ -43,6 +43,7 @@ class EventsController < InertiaController
       return
     end
 
+    can_manage = current_user&.id == @event.organizer_id
     inscription = current_user&.inscriptions&.find_by(event: @event)
 
     marked_ids =
@@ -54,7 +55,8 @@ class EventsController < InertiaController
 
     event_json = @event.as_json(include: { organizer: { only: [ :id, :name ] } })
     event_json["organizer"] = (event_json["organizer"] || {}).merge(
-      "avatar_url" => @event.organizer&.avatar_url
+      "avatar_url" => @event.organizer&.avatar_url,
+      "has_whatsapp" => @event.organizer&.whatsapp_phone_present?
     )
     event_json.merge!(cover_image_urls(@event)).merge!(
       "gear_items" => @event.gear_items.ordered.as_json(
@@ -64,9 +66,11 @@ class EventsController < InertiaController
 
     render inertia: "events/show", props: {
       event: event_json,
-      can_manage: current_user&.id == @event.organizer_id,
+      can_manage: can_manage,
       inscription: inscription&.as_json(only: [ :id, :status ]),
-      marked_gear_item_ids: marked_ids
+      marked_gear_item_ids: marked_ids,
+      whatsapp_url: whatsapp_url_for(@event),
+      confirmation_code: can_manage ? @event.confirmation_code : nil
     }
   end
 
@@ -83,6 +87,11 @@ class EventsController < InertiaController
   end
 
   def create
+    unless current_user.whatsapp_phone_present?
+      redirect_to "/profile/edit", alert: "Agregá tu WhatsApp en el perfil antes de crear una caminata"
+      return
+    end
+
     event = current_user.organized_events.build(event_params)
 
     if event.save
@@ -96,11 +105,18 @@ class EventsController < InertiaController
     render inertia: "events/edit", props: {
       event: @event.as_json(
         include: { gear_items: { only: [ :id, :name, :description, :required, :position ] } }
-      ).merge(cover_image_urls(@event))
+      ).merge(cover_image_urls(@event)).merge(
+        "confirmation_code" => @event.confirmation_code
+      )
     }
   end
 
   def update
+    unless current_user.whatsapp_phone_present?
+      redirect_to "/profile/edit", alert: "Agregá tu WhatsApp en el perfil antes de editar una caminata"
+      return
+    end
+
     if @event.update(event_params)
       redirect_to events_mine_path
     else
@@ -113,7 +129,24 @@ class EventsController < InertiaController
     redirect_to events_mine_path
   end
 
+  def regenerate_confirmation_code
+    @event.regenerate_confirmation_code!
+    redirect_to "/events/#{@event.id}", notice: "Código de confirmación regenerado"
+  end
+
   private
+
+  def whatsapp_url_for(event)
+    phone = event.organizer&.whatsapp_phone
+    return nil if phone.blank? || current_user.blank?
+
+    text = ::WhatsappUrl.inscription_message(
+      hiker_name: current_user.name,
+      event_title: event.title,
+      event_url: "#{request.base_url}/events/#{event.id}"
+    )
+    ::WhatsappUrl.build(phone: phone, text: text)
+  end
 
   def set_event
     @event = Event.with_attached_cover_image

@@ -11,6 +11,7 @@ type HikeListRowProps = {
 
 export function HikeListRow({ inscription }: HikeListRowProps) {
   const coverUrl = inscription.event.cover_image_card_url
+  const isPending = inscription.status === "pending"
 
   return (
     <li>
@@ -29,12 +30,23 @@ export function HikeListRow({ inscription }: HikeListRowProps) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-gray-900">{inscription.event.title}</h3>
+          <div className="flex items-start gap-2">
+            <h3 className="min-w-0 flex-1 truncate font-semibold text-gray-900">
+              {inscription.event.title}
+            </h3>
+            {isPending && (
+              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-amber-800 uppercase">
+                Pendiente
+              </span>
+            )}
+          </div>
           <p className="mt-0.5 truncate text-sm text-gray-600">
             {formatEventDateLong(inscription.event.starts_at)} · {inscription.event.custom_location}
           </p>
           <p className="mt-0.5 text-xs text-gray-500">
-            {difficultyFormLabel(inscription.event.difficulty)}
+            {isPending
+              ? "Pendiente de confirmación"
+              : difficultyFormLabel(inscription.event.difficulty)}
           </p>
         </div>
       </Link>

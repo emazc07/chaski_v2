@@ -29,7 +29,9 @@ Rails.application.routes.draw do
   patch "/profile/avatar", to: "profiles#update_avatar"
 
   post   "/events/:event_id/inscription", to: "inscriptions#create"
+  post   "/events/:event_id/inscription/confirm", to: "inscriptions#confirm"
   delete "/events/:event_id/inscription", to: "inscriptions#destroy"
+  patch  "/events/:id/regenerate_confirmation_code", to: "events#regenerate_confirmation_code"
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
   constraints(host: "127.0.0.1") do

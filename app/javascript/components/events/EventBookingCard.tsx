@@ -1,4 +1,5 @@
-import { Link } from "@inertiajs/react"
+import { Link, router } from "@inertiajs/react"
+import { useState, type FormEvent } from "react"
 
 import { formatPrice } from "@/lib/eventLabels"
 
@@ -7,11 +8,15 @@ import type { EventOrganizer } from "@/types"
 type EventBookingCardProps = {
   priceCrc: number
   inscriptionUrl: string
-  isInscribed: boolean
+  confirmUrl: string
+  inscriptionStatus: string | null
   isAuthenticated: boolean
   organizer?: EventOrganizer | null
   canManage: boolean
   eventId: number
+  whatsappUrl: string | null
+  confirmationCode: string | null
+  codeError?: string | null
   onCancelClick: () => void
 }
 
@@ -27,14 +32,43 @@ function organizerInitials(name: string): string {
 export function EventBookingCard({
   priceCrc,
   inscriptionUrl,
-  isInscribed,
+  confirmUrl,
+  inscriptionStatus,
   isAuthenticated,
   organizer,
   canManage,
   eventId,
+  whatsappUrl,
+  confirmationCode,
+  codeError = null,
   onCancelClick,
 }: EventBookingCardProps) {
   const priceLabel = formatPrice(priceCrc)
+  const isPending = inscriptionStatus === "pending"
+  const isActive = inscriptionStatus === "active"
+  const [code, setCode] = useState("")
+  const [confirming, setConfirming] = useState(false)
+  const [dismissedError, setDismissedError] = useState<string | null>(null)
+  const showCodeError = Boolean(codeError) && codeError !== dismissedError
+
+  function submitCode(e: FormEvent) {
+    e.preventDefault()
+    if (!code.trim()) return
+    setDismissedError(null)
+    setConfirming(true)
+    router.post(
+      confirmUrl,
+      { code: code.trim() },
+      {
+        preserveScroll: true,
+        onFinish: () => setConfirming(false),
+      },
+    )
+  }
+
+  function regenerateCode() {
+    router.patch(`/events/${eventId}/regenerate_confirmation_code`, {}, { preserveScroll: true })
+  }
 
   return (
     <aside className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
@@ -53,20 +87,38 @@ export function EventBookingCard({
       </p>
 
       <div className="mt-5">
-        {!isAuthenticated ? (
+        {canManage ? (
+          <div className="rounded-lg border border-chaski-green/30 bg-chaski-green/5 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-chaski-green-dark">
+              Código de confirmación
+            </p>
+            <p className="mt-2 font-mono text-2xl font-bold tracking-widest text-stone-900">
+              {confirmationCode ?? "—"}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-stone-600">
+              Compartí este código por WhatsApp con quien quieras confirmar en la caminata.
+            </p>
+            <button
+              type="button"
+              onClick={regenerateCode}
+              className="mt-3 text-sm font-semibold text-chaski-green hover:text-chaski-green-dark"
+            >
+              Regenerar código
+            </button>
+          </div>
+        ) : !isAuthenticated ? (
           <>
             <Link
               href="/users/sign_in"
               className="flex w-full items-center justify-center rounded-lg bg-chaski-green px-4 py-3 text-sm font-semibold text-white hover:bg-chaski-green-dark"
             >
-              Inscribirme ahora
+              Solicitar cupo
             </Link>
             <p className="mt-3 text-center text-xs leading-relaxed text-stone-500">
-              Iniciá sesión para inscribirte. Al inscribirse, se enviará una notificación al
-              organizador para coordinar el pago.
+              Iniciá sesión para solicitar cupo y coordinar con el organizador por WhatsApp.
             </p>
           </>
-        ) : isInscribed ? (
+        ) : isActive ? (
           <>
             <p className="text-sm font-medium text-chaski-green-dark">
               Ya estás inscrito en esta caminata.
@@ -79,6 +131,72 @@ export function EventBookingCard({
               Cancelar inscripción
             </button>
           </>
+        ) : isPending ? (
+          <div className="space-y-4">
+            <p className="text-sm font-medium text-amber-800">
+              Cupo solicitado — pendiente de confirmación
+            </p>
+            {whatsappUrl ? (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center rounded-lg bg-chaski-green px-4 py-3 text-sm font-semibold text-white hover:bg-chaski-green-dark"
+              >
+                Abrir WhatsApp
+              </a>
+            ) : (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                El organizador aún no agregó WhatsApp. Volvé más tarde o escribinos si necesitás
+                ayuda.
+              </p>
+            )}
+            <form onSubmit={submitCode} className="space-y-2">
+              <label
+                htmlFor="confirmation-code"
+                className="block text-[10px] font-semibold uppercase tracking-wider text-stone-500"
+              >
+                Código del organizador
+              </label>
+              <input
+                id="confirmation-code"
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value.toUpperCase())
+                  if (codeError) setDismissedError(codeError)
+                }}
+                maxLength={8}
+                autoComplete="off"
+                placeholder="ABC123"
+                aria-invalid={showCodeError}
+                aria-describedby={showCodeError ? "confirmation-code-error" : undefined}
+                className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm tracking-widest text-stone-900 shadow-sm focus:outline-none focus:ring-1 ${
+                  showCodeError
+                    ? "border-red-400 focus:border-red-500 focus:ring-red-500"
+                    : "border-stone-300 focus:border-chaski-green focus:ring-chaski-green"
+                }`}
+              />
+              {showCodeError && (
+                <p id="confirmation-code-error" className="text-sm text-red-600" role="alert">
+                  {codeError}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={confirming || !code.trim()}
+                className="flex w-full items-center justify-center rounded-lg border border-chaski-green px-4 py-3 text-sm font-semibold text-chaski-green hover:bg-chaski-green/5 disabled:opacity-50"
+              >
+                {confirming ? "Confirmando…" : "Confirmar inscripción"}
+              </button>
+            </form>
+            <button
+              type="button"
+              className="w-full text-center text-xs font-medium text-stone-500 hover:text-red-700"
+              onClick={onCancelClick}
+            >
+              Cancelar solicitud
+            </button>
+          </div>
         ) : (
           <>
             <Link
@@ -87,10 +205,11 @@ export function EventBookingCard({
               as="button"
               className="flex w-full items-center justify-center rounded-lg bg-chaski-green px-4 py-3 text-sm font-semibold text-white hover:bg-chaski-green-dark"
             >
-              Inscribirme ahora
+              Solicitar cupo
             </Link>
             <p className="mt-3 text-center text-xs leading-relaxed text-stone-500">
-              Al inscribirse, se enviará una notificación al organizador para coordinar el pago.
+              Vas a contactar al organizador por WhatsApp y confirmar con un código para completar
+              la inscripción.
             </p>
           </>
         )}

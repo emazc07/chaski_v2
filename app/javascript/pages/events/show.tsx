@@ -13,26 +13,36 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog"
 import type { Event, GearItem, Inscription, SharedProps } from "@/types"
 
 const INSCRIPTION_SUCCESS_NOTICE = "Te inscribiste en la caminata"
+const INSCRIPTION_PENDING_NOTICE =
+  "Solicitaste cupo. Contactá al organizador por WhatsApp y confirmá con el código."
 
 export default function EventsShow({
   event,
   can_manage,
   inscription,
   marked_gear_item_ids = [],
+  whatsapp_url = null,
+  confirmation_code = null,
 }: {
   event: Event
   can_manage: boolean
   inscription: Inscription | null
   marked_gear_item_ids?: number[]
+  whatsapp_url?: string | null
+  confirmation_code?: string | null
 }) {
   const { auth, flash } = usePage<SharedProps>().props
   const user = auth?.user
-  const isInscribed = inscription?.status === "active"
+  const inscriptionStatus = inscription?.status ?? null
+  const isInscribed = inscriptionStatus === "active"
   const inscriptionUrl = `/events/${event.id}/inscription`
+  const confirmUrl = `/events/${event.id}/inscription/confirm`
 
   const [successDismissed, setSuccessDismissed] = useState(false)
+  const [pendingDismissed, setPendingDismissed] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
   const successOpen = !successDismissed && flash?.notice === INSCRIPTION_SUCCESS_NOTICE
+  const pendingOpen = !pendingDismissed && flash?.notice === INSCRIPTION_PENDING_NOTICE
 
   const gearItems = event.gear_items ?? []
   const canMarkGear = Boolean(user && isInscribed)
@@ -50,11 +60,17 @@ export default function EventsShow({
     setSuccessDismissed(true)
   }
 
+  function dismissPending() {
+    setPendingDismissed(true)
+  }
+
   const showStatusBadge = can_manage && event.status !== "published"
 
   const gearHint = !canMarkGear
     ? user
-      ? "Inscribite para marcar lo que ya tenés."
+      ? inscriptionStatus === "pending"
+        ? "Confirmá tu inscripción con el código del organizador para marcar tu equipo."
+        : "Inscribite para marcar lo que ya tenés."
       : "Inicia sesión e inscribite para marcar tu equipo."
     : undefined
 
@@ -70,6 +86,16 @@ export default function EventsShow({
         primaryLabel="Entendido"
         onPrimary={dismissSuccess}
         onClose={dismissSuccess}
+      />
+
+      <ConfirmDialog
+        open={pendingOpen}
+        variant="success"
+        title="Cupo solicitado"
+        description="Escribile al organizador por WhatsApp para coordinar. Cuando te pase el código, ingresalo acá para confirmar tu inscripción."
+        primaryLabel="Entendido"
+        onPrimary={dismissPending}
+        onClose={dismissPending}
       />
 
       <ConfirmDialog
@@ -130,11 +156,15 @@ export default function EventsShow({
               <EventBookingCard
                 priceCrc={event.price_crc}
                 inscriptionUrl={inscriptionUrl}
-                isInscribed={isInscribed}
+                confirmUrl={confirmUrl}
+                inscriptionStatus={inscriptionStatus}
                 isAuthenticated={Boolean(user)}
                 organizer={event.organizer}
                 canManage={can_manage}
                 eventId={event.id}
+                whatsappUrl={whatsapp_url}
+                confirmationCode={confirmation_code}
+                codeError={flash?.alert ?? null}
                 onCancelClick={() => setCancelOpen(true)}
               />
               <EventTipsCard />

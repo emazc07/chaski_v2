@@ -77,6 +77,28 @@ export default function EventsEdit({ event }: { event: Event }) {
           <p className="mt-2 text-gray-600">Modifica los datos de tu caminata.</p>
         </header>
 
+        {event.confirmation_code && (
+          <section className="mb-6 rounded-lg border border-chaski-green/30 bg-chaski-green/5 p-5">
+            <p className="text-[10px] font-semibold tracking-wider text-chaski-green-dark uppercase">
+              Código de confirmación
+            </p>
+            <p className="mt-2 font-mono text-2xl font-bold tracking-widest text-gray-900">
+              {event.confirmation_code}
+            </p>
+            <p className="mt-2 text-sm text-gray-600">
+              Compartilo por WhatsApp con hikers para que confirmen su inscripción en Chaski.
+            </p>
+            <Link
+              href={`/events/${event.id}/regenerate_confirmation_code`}
+              method="patch"
+              as="button"
+              className="mt-3 text-sm font-semibold text-chaski-green hover:text-chaski-green-dark"
+            >
+              Regenerar código
+            </Link>
+          </section>
+        )}
+
         <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <form onSubmit={submit} className="space-y-5">
             <div>

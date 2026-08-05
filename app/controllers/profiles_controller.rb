@@ -35,17 +35,21 @@ class ProfilesController < InertiaController
       bio: current_user.bio,
       location: current_user.location,
       birthday: current_user.birthday&.iso8601,
-      experience_level: current_user.experience_level
+      experience_level: current_user.experience_level,
+      whatsapp_phone: current_user.whatsapp_phone
     }
   end
 
   def profile_params
-    permitted = params.permit(:name, :bio, :location, :birthday, :experience_level)
+    permitted = params.permit(:name, :bio, :location, :birthday, :experience_level, :whatsapp_phone)
     if permitted.key?(:experience_level) && permitted[:experience_level].blank?
       permitted[:experience_level] = nil
     end
     if permitted.key?(:birthday) && permitted[:birthday].blank?
       permitted[:birthday] = nil
+    end
+    if permitted.key?(:whatsapp_phone) && permitted[:whatsapp_phone].blank?
+      permitted[:whatsapp_phone] = nil
     end
     permitted
   end
