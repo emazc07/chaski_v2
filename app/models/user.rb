@@ -17,8 +17,15 @@ class User < ApplicationRecord
   AVATAR_CONTENT_TYPES = %w[image/jpeg image/png image/webp].freeze
   AVATAR_MAX_BYTES = 5.megabytes
 
+  WHATSAPP_PHONE_FORMAT = /\A\d{8,15}\z/
+
   validates :name, presence: true
+  validates :whatsapp_phone,
+            format: { with: WHATSAPP_PHONE_FORMAT, message: "debe incluir código de país y solo dígitos (ej: 50688887777)" },
+            allow_nil: true
   validate :avatar_must_be_valid, if: -> { avatar.attached? }
+
+  before_validation :normalize_whatsapp_phone
 
   # Chaski schema — string-backed enums (display in Spanish via i18n later)
   enum :experience_level, {
@@ -38,6 +45,10 @@ class User < ApplicationRecord
     admin
   end
 
+  def whatsapp_phone_present?
+    whatsapp_phone.present?
+  end
+
   def avatar_url
     return nil unless avatar.attached?
 
@@ -48,6 +59,18 @@ class User < ApplicationRecord
   end
 
   private
+
+  def normalize_whatsapp_phone
+    return if whatsapp_phone.nil?
+
+    stripped = whatsapp_phone.to_s.strip
+    if stripped.blank?
+      self.whatsapp_phone = nil
+      return
+    end
+
+    self.whatsapp_phone = stripped.gsub(/\D/, "")
+  end
 
   def avatar_must_be_valid
     unless AVATAR_CONTENT_TYPES.include?(avatar.content_type)

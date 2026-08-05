@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_20_011507) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_011507) do
   end
 
   create_table "events", force: :cascade do |t|
+    t.string "confirmation_code", null: false
     t.datetime "created_at", null: false
     t.string "custom_location", null: false
     t.text "description_long", null: false
@@ -61,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_011507) do
     t.string "status", default: "published", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["confirmation_code"], name: "index_events_on_confirmation_code"
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
     t.index ["slug"], name: "index_events_on_slug", unique: true
   end
@@ -89,9 +91,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_011507) do
   create_table "inscriptions", force: :cascade do |t|
     t.text "cancellation_reason"
     t.datetime "cancelled_at"
+    t.datetime "confirmed_at"
     t.datetime "created_at", null: false
     t.bigint "event_id", null: false
-    t.string "status", default: "active", null: false
+    t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["event_id"], name: "index_inscriptions_on_event_id"
@@ -115,6 +118,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_011507) do
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.datetime "updated_at", null: false
+    t.string "whatsapp_phone"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

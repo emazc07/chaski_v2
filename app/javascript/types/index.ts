@@ -55,6 +55,7 @@ export type EventOrganizer = {
   id: number
   name: string
   avatar_url?: string | null
+  has_whatsapp?: boolean
 }
 
 export type EventListItem = Pick<
@@ -96,6 +97,7 @@ export type Event = {
   organizer_id: number
   organizer?: EventOrganizer
   gear_items?: GearItem[]
+  confirmation_code?: string | null
   created_at: string
   updated_at: string
   cover_image_card_url?: string | null

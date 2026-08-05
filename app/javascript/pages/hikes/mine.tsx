@@ -135,6 +135,11 @@ export default function HikesMine({
                 <span className="inline-block rounded-full bg-chaski-green px-3 py-1 text-xs font-bold uppercase tracking-wide">
                   Próxima aventura
                 </span>
+                {next_hike.status === "pending" && (
+                  <span className="ml-2 inline-block rounded-full bg-amber-400/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-950">
+                    Pendiente de confirmación
+                  </span>
+                )}
                 <h2 className="mt-4 text-2xl font-bold drop-shadow-sm">{next_hike.event.title}</h2>
                 <p className="mt-2 text-sm text-white/90">
                   {formatEventDateLong(next_hike.event.starts_at)} ·{" "}
@@ -156,7 +161,7 @@ export default function HikesMine({
                     className="rounded-full border border-white/40 px-5 py-2 text-sm font-medium text-white hover:bg-white/10"
                     onClick={() => setCancelOpen(true)}
                   >
-                    Cancelar inscripción
+                    {next_hike.status === "pending" ? "Cancelar solicitud" : "Cancelar inscripción"}
                   </button>
                 </div>
               </div>

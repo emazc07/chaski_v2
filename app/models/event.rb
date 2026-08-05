@@ -39,15 +39,40 @@ class Event < ApplicationRecord
     completed: "completed"
   }
 
+  CONFIRMATION_CODE_ALPHABET = (("A".."Z").to_a + ("2".."9").to_a) - %w[O I 0 1]
+  CONFIRMATION_CODE_LENGTH = 6
+
   validates :title, :description_short, :description_long, :custom_location,
             :difficulty, :distance_km, :elevation_gain_m, :duration_hours,
             :route_type, :starts_at, :meeting_point, :max_participants,
-            :slug, presence: true
+            :slug, :confirmation_code, presence: true
   validates :description_short, length: { maximum: 160 }
   validates :max_participants, numericality: { only_integer: true, greater_than_or_equal_to: 2 }
   validates :slug, uniqueness: true
+  validates :confirmation_code, length: { is: CONFIRMATION_CODE_LENGTH }
+  validate :organizer_must_have_whatsapp_phone
 
   before_validation :generate_slug, on: :create
+  before_validation :ensure_confirmation_code, on: :create
+
+  def regenerate_confirmation_code!
+    update!(confirmation_code: self.class.generate_confirmation_code)
+  end
+
+  def confirmation_code_matches?(input)
+    normalized = self.class.normalize_confirmation_code(input)
+    normalized.present? && normalized == confirmation_code
+  end
+
+  def self.generate_confirmation_code
+    CONFIRMATION_CODE_LENGTH.times.map do
+      CONFIRMATION_CODE_ALPHABET[SecureRandom.random_number(CONFIRMATION_CODE_ALPHABET.length)]
+    end.join
+  end
+
+  def self.normalize_confirmation_code(input)
+    input.to_s.upcase.gsub(/[^A-Z2-9]/, "")
+  end
 
   PROVINCE_LABELS = {
     "san_jose" => "San José",
@@ -137,5 +162,15 @@ class Event < ApplicationRecord
     end
 
     self.slug = candidate
+  end
+
+  def ensure_confirmation_code
+    self.confirmation_code = self.class.generate_confirmation_code if confirmation_code.blank?
+  end
+
+  def organizer_must_have_whatsapp_phone
+    return if organizer&.whatsapp_phone_present?
+
+    errors.add(:base, "Agregá tu WhatsApp en el perfil antes de crear o editar una caminata")
   end
 end
