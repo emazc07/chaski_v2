@@ -75,10 +75,41 @@ class EventsController < InertiaController
   end
 
   def mine
+    q = params[:q].to_s.strip.presence
+    difficulty = params[:difficulty].presence_in(Event.difficulties.keys)
+    zone = params[:zone].presence_in(Event::PROVINCE_LABELS.keys)
+    date = params[:date].presence_in(%w[week month])
+
+    events = current_user.organized_events
+      .with_attached_cover_image
+      .search(q)
+      .by_difficulty(difficulty)
+      .by_zone(zone)
+      .by_date(date)
+      .order(starts_at: :asc)
+
+    serialized = serialized_organizer_events(events)
+    now = Time.current
+    upcoming = []
+    past = []
+
+    serialized.each do |payload|
+      starts_at = Time.zone.parse(payload["starts_at"].to_s)
+      if starts_at && starts_at >= now
+        upcoming << payload
+      else
+        past << payload
+      end
+    end
+
     render inertia: "events/mine", props: {
-      events: serialized_events(
-        current_user.organized_events.with_attached_cover_image.order(created_at: :desc)
-      )
+      upcoming: upcoming,
+      past: past.reverse,
+      q: q,
+      difficulty: difficulty,
+      zone: zone,
+      date: date,
+      total_count: upcoming.size + past.size
     }
   end
 
@@ -102,6 +133,11 @@ class EventsController < InertiaController
   end
 
   def edit
+    if event_in_past?(@event)
+      redirect_to events_mine_path, alert: "No podés editar una caminata que ya pasó"
+      return
+    end
+
     render inertia: "events/edit", props: {
       event: @event.as_json(
         include: { gear_items: { only: [ :id, :name, :description, :required, :position ] } }
@@ -112,6 +148,11 @@ class EventsController < InertiaController
   end
 
   def update
+    if event_in_past?(@event)
+      redirect_to events_mine_path, alert: "No podés editar una caminata que ya pasó"
+      return
+    end
+
     unless current_user.whatsapp_phone_present?
       redirect_to "/profile/edit", alert: "Agregá tu WhatsApp en el perfil antes de editar una caminata"
       return
@@ -148,6 +189,10 @@ class EventsController < InertiaController
     ::WhatsappUrl.build(phone: phone, text: text)
   end
 
+  def event_in_past?(event)
+    event.starts_at < Time.current
+  end
+
   def set_event
     @event = Event.with_attached_cover_image
       .includes(organizer: { avatar_attachment: :blob })
@@ -162,6 +207,40 @@ class EventsController < InertiaController
       )
       json.merge(cover_image_urls(event))
     end
+  end
+
+  def serialized_organizer_events(events)
+    events
+      .includes(
+        organizer: { avatar_attachment: :blob },
+        inscriptions: { user: { avatar_attachment: :blob } }
+      )
+      .map do |event|
+        roster = event.inscriptions
+          .select { |inscription| inscription.pending? || inscription.active? }
+          .sort_by { |inscription| [ inscription.active? ? 0 : 1, inscription.user.name.to_s.downcase ] }
+
+        json = event.as_json(include: { organizer: { only: [ :id, :name ] } })
+        json["organizer"] = (json["organizer"] || {}).merge(
+          "avatar_url" => event.organizer&.avatar_url
+        )
+        json.merge(cover_image_urls(event)).merge(
+          "confirmed_count" => roster.count(&:active?),
+          "pending_count" => roster.count(&:pending?),
+          "inscriptions" => roster.map { |inscription|
+            {
+              "id" => inscription.id,
+              "status" => inscription.status,
+              "confirmed_at" => inscription.confirmed_at,
+              "user" => {
+                "id" => inscription.user.id,
+                "name" => inscription.user.name,
+                "avatar_url" => inscription.user.avatar_url
+              }
+            }
+          }
+        )
+      end
   end
 
   def cover_image_urls(event)

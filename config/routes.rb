@@ -31,6 +31,7 @@ Rails.application.routes.draw do
   post   "/events/:event_id/inscription", to: "inscriptions#create"
   post   "/events/:event_id/inscription/confirm", to: "inscriptions#confirm"
   delete "/events/:event_id/inscription", to: "inscriptions#destroy"
+  delete "/events/:event_id/inscriptions/:id", to: "inscriptions#organizer_destroy"
   patch  "/events/:id/regenerate_confirmation_code", to: "events#regenerate_confirmation_code"
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server

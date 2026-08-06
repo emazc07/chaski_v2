@@ -54,4 +54,38 @@ class InscriptionsControllerTest < ActionDispatch::IntegrationTest
 
     assert inscription.reload.cancelled?
   end
+
+  test "organizer can cancel a hiker inscription" do
+    sign_in @organizer
+    inscription = @hiker.inscriptions.create!(event: @event, status: :active, confirmed_at: Time.current)
+
+    delete "/events/#{@event.id}/inscriptions/#{inscription.id}"
+
+    assert_redirected_to events_mine_path
+    assert_equal "Quitaste al caminante de la lista", flash[:notice]
+    assert inscription.reload.cancelled?
+    assert_not_nil inscription.cancelled_at
+  end
+
+  test "non organizer cannot cancel another hikers inscription" do
+    sign_in @hiker
+    other = @hiker.inscriptions.create!(event: @event, status: :pending)
+
+    delete "/events/#{@event.id}/inscriptions/#{other.id}"
+
+    assert_response :redirect
+    assert other.reload.pending?
+  end
+
+  test "organizer cannot cancel inscription on past event" do
+    sign_in @organizer
+    @event.update!(starts_at: 1.week.ago)
+    inscription = @hiker.inscriptions.create!(event: @event, status: :active, confirmed_at: 1.week.ago)
+
+    delete "/events/#{@event.id}/inscriptions/#{inscription.id}"
+
+    assert_redirected_to events_mine_path
+    assert_match(/ya pasó/i, flash[:alert])
+    assert inscription.reload.active?
+  end
 end

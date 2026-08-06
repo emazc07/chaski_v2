@@ -1,6 +1,9 @@
 class InscriptionsController < InertiaController
   before_action :authenticate_user!
-  before_action :set_event
+  before_action :set_published_event, only: [ :create, :confirm, :destroy ]
+  before_action :set_event, only: [ :organizer_destroy ]
+  before_action -> { require_organizer!(@event) }, only: [ :organizer_destroy ]
+  before_action :require_admin!, only: [ :organizer_destroy ]
 
   def create
     inscription = current_user.inscriptions.find_or_initialize_by(event: @event)
@@ -42,9 +45,25 @@ class InscriptionsController < InertiaController
     redirect_to "/events/#{@event.id}", notice: "Cancelaste tu inscripción"
   end
 
+  def organizer_destroy
+    if @event.starts_at < Time.current
+      redirect_back fallback_location: events_mine_path, alert: "No podés modificar inscritos de una caminata que ya pasó"
+      return
+    end
+
+    inscription = @event.inscriptions.find(params[:id])
+    inscription.update(status: :cancelled, cancelled_at: Time.current)
+
+    redirect_back fallback_location: events_mine_path, notice: "Quitaste al caminante de la lista"
+  end
+
   private
 
-  def set_event
+  def set_published_event
     @event = Event.published.find(params[:event_id])
+  end
+
+  def set_event
+    @event = Event.find(params[:event_id])
   end
 end

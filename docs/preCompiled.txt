@@ -1,0 +1,11 @@
+SELECT rmr.user_id,  
+       CONCAT(u.first_name, ' ', u.last_name) AS employee_name,  
+       DATE(rmr.at_interval) AS day,  
+       SUM(rmr.closed_solved_requests) AS report_count  
+FROM request_manager_reports rmr  
+JOIN users u ON u.id = rmr.user_id  
+WHERE rmr.interval_resolution = 1  
+  AND rmr.at_interval >= '2026-07-01 00:00:00'  
+  AND rmr.at_interval <  '2026-08-01 00:00:00'  
+GROUP BY rmr.user_id, employee_name, DATE(rmr.at_interval)  
+ORDER BY rmr.user_id, day;

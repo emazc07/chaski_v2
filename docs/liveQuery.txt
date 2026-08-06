@@ -1,0 +1,18 @@
+SET SESSION group_concat_max_len = 1000000;  
+  
+SELECT ra.user_id,  
+       CONCAT(u.first_name, ' ', u.last_name) AS employee_name,  
+       DATE(ra.created_at) AS day,  
+       COUNT(ra.id) AS solved_requests,  
+       GROUP_CONCAT(ra.request_id ORDER BY ra.request_id) AS request_ids  
+FROM requests_actions ra  
+JOIN users u ON u.id = ra.user_id  
+JOIN requests r ON r.id = ra.request_id  
+WHERE ra.type = 'Requests::Transition'  
+  AND ra.to_state = 'solved'  
+  AND ra.created_at >= '2026-07-01 00:00:00'  
+  AND ra.created_at <  '2026-08-01 00:00:00'  
+  AND (ra.metadata IS NULL OR ra.metadata NOT LIKE '%"display_state":"edited"%')  
+  AND r.deleted_at IS NULL  
+GROUP BY ra.user_id, employee_name, DATE(ra.created_at)  
+ORDER BY ra.user_id, day;
