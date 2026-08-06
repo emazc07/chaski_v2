@@ -104,6 +104,37 @@ export type Event = {
   cover_image_hero_url?: string | null
 }
 
+export type OrganizerInscriptionHiker = {
+  id: number
+  name: string
+  avatar_url?: string | null
+}
+
+export type OrganizerInscription = {
+  id: number
+  status: string
+  confirmed_at?: string | null
+  user: OrganizerInscriptionHiker
+}
+
+export type OrganizerEvent = Pick<
+  Event,
+  | "id"
+  | "title"
+  | "slug"
+  | "custom_location"
+  | "description_short"
+  | "difficulty"
+  | "starts_at"
+  | "status"
+  | "cover_image_card_url"
+  | "cover_image_hero_url"
+> & {
+  confirmed_count: number
+  pending_count: number
+  inscriptions: OrganizerInscription[]
+}
+
 export type SharedProps = {
   auth?: {
     user: AuthUser | null

@@ -55,4 +55,14 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     patch "/events/#{@event.id}/regenerate_confirmation_code"
     assert_response :redirect
   end
+
+  test "edit redirects for past event" do
+    sign_in @organizer
+    @event.update!(starts_at: 1.week.ago)
+
+    get "/events/#{@event.id}/edit"
+
+    assert_redirected_to events_mine_path
+    assert_match(/ya pasó/i, flash[:alert])
+  end
 end
