@@ -88,4 +88,40 @@ class InscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/ya pasó/i, flash[:alert])
     assert inscription.reload.active?
   end
+
+  test "create rejected for past event" do
+    sign_in @hiker
+    past = events(:past_hike)
+
+    assert_no_difference -> { Inscription.count } do
+      post "/events/#{past.id}/inscription"
+    end
+
+    assert_redirected_to "/events/#{past.id}"
+    assert_match(/ya pasó/i, flash[:alert])
+  end
+
+  test "confirm rejected for past event" do
+    sign_in @hiker
+    past = events(:past_hike)
+    inscription = @hiker.inscriptions.create!(event: past, status: :pending)
+
+    post "/events/#{past.id}/inscription/confirm", params: { code: past.confirmation_code }
+
+    assert_redirected_to "/events/#{past.id}"
+    assert_match(/ya pasó/i, flash[:alert])
+    assert inscription.reload.pending?
+  end
+
+  test "destroy rejected for past event" do
+    sign_in @hiker
+    past = events(:past_hike)
+    inscription = @hiker.inscriptions.create!(event: past, status: :active, confirmed_at: 2.weeks.ago)
+
+    delete "/events/#{past.id}/inscription"
+
+    assert_redirected_to "/events/#{past.id}"
+    assert_match(/ya pasó/i, flash[:alert])
+    assert inscription.reload.active?
+  end
 end

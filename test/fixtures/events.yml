@@ -18,3 +18,22 @@ published_hike:
   price_crc: 15000
   status: published
   confirmation_code: ABC234
+
+past_hike:
+  organizer: organizer
+  title: Volcán Irazú
+  slug: volcan-irazu
+  description_short: Caminata al cráter
+  description_long: Descripción larga de la caminata al Irazú.
+  custom_location: Cartago
+  difficulty: moderate
+  distance_km: 6.0
+  elevation_gain_m: 300
+  duration_hours: 3.0
+  route_type: loop
+  starts_at: <%= 2.weeks.ago.to_fs(:db) %>
+  meeting_point: Parqueadero principal
+  max_participants: 15
+  price_crc: 5000
+  status: published
+  confirmation_code: XYZ789

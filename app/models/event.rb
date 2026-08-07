@@ -64,6 +64,14 @@ class Event < ApplicationRecord
     normalized.present? && normalized == confirmation_code
   end
 
+  def past?
+    starts_at < Time.current
+  end
+
+  def upcoming?
+    !past?
+  end
+
   def self.generate_confirmation_code
     CONFIRMATION_CODE_LENGTH.times.map do
       CONFIRMATION_CODE_ALPHABET[SecureRandom.random_number(CONFIRMATION_CODE_ALPHABET.length)]
@@ -85,6 +93,8 @@ class Event < ApplicationRecord
   }.freeze
 
   scope :published, -> { where(status: :published) }
+  scope :upcoming, -> { where("starts_at >= ?", Time.current) }
+  scope :past, -> { where("starts_at < ?", Time.current) }
   scope :for_organizer, ->(user) { where(organizer: user) }
   scope :search, ->(q) {
     return all if q.blank?

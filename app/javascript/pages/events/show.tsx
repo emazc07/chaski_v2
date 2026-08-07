@@ -23,6 +23,7 @@ export default function EventsShow({
   marked_gear_item_ids = [],
   whatsapp_url = null,
   confirmation_code = null,
+  is_past = false,
 }: {
   event: Event
   can_manage: boolean
@@ -30,6 +31,7 @@ export default function EventsShow({
   marked_gear_item_ids?: number[]
   whatsapp_url?: string | null
   confirmation_code?: string | null
+  is_past?: boolean
 }) {
   const { auth, flash } = usePage<SharedProps>().props
   const user = auth?.user
@@ -45,7 +47,7 @@ export default function EventsShow({
   const pendingOpen = !pendingDismissed && flash?.notice === INSCRIPTION_PENDING_NOTICE
 
   const gearItems = event.gear_items ?? []
-  const canMarkGear = Boolean(user && isInscribed)
+  const canMarkGear = Boolean(user && isInscribed && !is_past)
 
   function markUrl(item: GearItem) {
     return `/events/${event.id}/gear_items/${item.id}/mark`
@@ -67,11 +69,13 @@ export default function EventsShow({
   const showStatusBadge = can_manage && event.status !== "published"
 
   const gearHint = !canMarkGear
-    ? user
-      ? inscriptionStatus === "pending"
-        ? "Confirmá tu inscripción con el código del organizador para marcar tu equipo."
-        : "Inscribite para marcar lo que ya tenés."
-      : "Inicia sesión e inscribite para marcar tu equipo."
+    ? is_past
+      ? "Esta caminata ya pasó. El checklist de equipo es solo de consulta."
+      : user
+        ? inscriptionStatus === "pending"
+          ? "Confirmá tu inscripción con el código del organizador para marcar tu equipo."
+          : "Inscribite para marcar lo que ya tenés."
+        : "Inicia sesión e inscribite para marcar tu equipo."
     : undefined
 
   return (
@@ -123,10 +127,10 @@ export default function EventsShow({
 
         <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8 lg:py-10">
           <Link
-            href="/events"
+            href={is_past && isInscribed ? "/hikes/mine" : "/events"}
             className="mb-6 inline-block text-sm font-medium text-stone-600 hover:text-stone-900"
           >
-            ← Volver a caminatas
+            {is_past && isInscribed ? "← Volver a mis caminatas" : "← Volver a caminatas"}
           </Link>
 
           <EventStatsRow
@@ -165,6 +169,7 @@ export default function EventsShow({
                 whatsappUrl={whatsapp_url}
                 confirmationCode={confirmation_code}
                 codeError={flash?.alert ?? null}
+                isPast={is_past}
                 onCancelClick={() => setCancelOpen(true)}
               />
               <EventTipsCard />

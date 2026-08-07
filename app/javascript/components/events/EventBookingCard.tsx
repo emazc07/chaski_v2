@@ -17,6 +17,7 @@ type EventBookingCardProps = {
   whatsappUrl: string | null
   confirmationCode: string | null
   codeError?: string | null
+  isPast?: boolean
   onCancelClick: () => void
 }
 
@@ -41,6 +42,7 @@ export function EventBookingCard({
   whatsappUrl,
   confirmationCode,
   codeError = null,
+  isPast = false,
   onCancelClick,
 }: EventBookingCardProps) {
   const priceLabel = formatPrice(priceCrc)
@@ -87,7 +89,24 @@ export function EventBookingCard({
       </p>
 
       <div className="mt-5">
-        {canManage ? (
+        {isPast ? (
+          <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm font-medium text-stone-800">Esta caminata ya pasó</p>
+            {isActive ? (
+              <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                Participaste en esta caminata. Ya no se puede modificar la inscripción.
+              </p>
+            ) : canManage ? (
+              <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                La caminata finalizó. Ya no se puede editar ni regenerar el código.
+              </p>
+            ) : (
+              <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                Las inscripciones están cerradas.
+              </p>
+            )}
+          </div>
+        ) : canManage ? (
           <div className="rounded-lg border border-chaski-green/30 bg-chaski-green/5 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-chaski-green-dark">
               Código de confirmación
@@ -241,7 +260,7 @@ export function EventBookingCard({
         </>
       )}
 
-      {canManage && (
+      {canManage && !isPast && (
         <div className="mt-5 flex flex-wrap gap-2 border-t border-stone-100 pt-5">
           <Link
             href={`/events/${eventId}/edit`}
