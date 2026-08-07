@@ -65,4 +65,72 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to events_mine_path
     assert_match(/ya pasó/i, flash[:alert])
   end
+
+  test "index omits past published events" do
+    past = events(:past_hike)
+
+    get "/events"
+
+    assert_response :success
+    assert_not_includes response.body, past.title
+  end
+
+  test "all omits past published events" do
+    past = events(:past_hike)
+
+    get "/events/all"
+
+    assert_response :success
+    assert_not_includes response.body, past.title
+  end
+
+  test "show allows organizer for past event" do
+    sign_in @organizer
+    past = events(:past_hike)
+
+    get "/events/#{past.id}"
+
+    assert_response :success
+  end
+
+  test "show allows active inscription for past event" do
+    sign_in @hiker
+    past = events(:past_hike)
+    @hiker.inscriptions.create!(event: past, status: :active, confirmed_at: 2.weeks.ago)
+
+    get "/events/#{past.id}"
+
+    assert_response :success
+  end
+
+  test "show redirects others for past event" do
+    sign_in @hiker
+    past = events(:past_hike)
+
+    get "/events/#{past.id}"
+
+    assert_redirected_to events_path
+    assert_match(/ya pasó/i, flash[:alert])
+  end
+
+  test "show redirects guests for past event" do
+    past = events(:past_hike)
+
+    get "/events/#{past.id}"
+
+    assert_redirected_to events_path
+    assert_match(/ya pasó/i, flash[:alert])
+  end
+
+  test "regenerate confirmation code blocked for past event" do
+    sign_in @organizer
+    past = events(:past_hike)
+    original = past.confirmation_code
+
+    patch "/events/#{past.id}/regenerate_confirmation_code"
+
+    assert_redirected_to "/events/#{past.id}"
+    assert_match(/ya pasó/i, flash[:alert])
+    assert_equal original, past.reload.confirmation_code
+  end
 end

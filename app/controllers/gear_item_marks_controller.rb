@@ -1,6 +1,7 @@
 class GearItemMarksController < InertiaController
   before_action :authenticate_user!
   before_action :set_event
+  before_action :reject_if_event_past!
   before_action :set_inscription
   before_action :set_gear_item
 
@@ -15,6 +16,12 @@ class GearItemMarksController < InertiaController
   end
 
   private
+
+  def reject_if_event_past!
+    return unless @event.past?
+
+    redirect_to "/events/#{@event.id}", alert: "No podés modificar el equipo de una caminata que ya pasó"
+  end
 
   def set_event
     @event = Event.published.find(params[:event_id])

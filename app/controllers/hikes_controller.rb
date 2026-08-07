@@ -24,7 +24,7 @@ class HikesController < InertiaController
       end
     end
 
-    featured = Event.published.with_attached_cover_image.order(starts_at: :asc).limit(3)
+    featured = Event.published.upcoming.with_attached_cover_image.order(starts_at: :asc).limit(3)
 
     render inertia: "hikes/mine", props: {
       upcoming: upcoming,

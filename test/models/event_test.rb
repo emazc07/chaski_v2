@@ -62,4 +62,21 @@ class EventTest < ActiveSupport::TestCase
     event.regenerate_confirmation_code!
     assert_not_equal original, event.confirmation_code
   end
+
+  test "upcoming and past scopes split by starts_at" do
+    upcoming = events(:published_hike)
+    past = events(:past_hike)
+
+    assert_includes Event.upcoming, upcoming
+    assert_not_includes Event.upcoming, past
+    assert_includes Event.past, past
+    assert_not_includes Event.past, upcoming
+  end
+
+  test "past? and upcoming? reflect starts_at" do
+    assert events(:past_hike).past?
+    assert_not events(:past_hike).upcoming?
+    assert events(:published_hike).upcoming?
+    assert_not events(:published_hike).past?
+  end
 end

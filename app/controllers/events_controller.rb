@@ -7,9 +7,9 @@ class EventsController < InertiaController
   def index
     render inertia: "events/index", props: {
       events: serialized_events(
-        Event.published.with_attached_cover_image.order(starts_at: :asc).limit(6)
+        Event.published.upcoming.with_attached_cover_image.order(starts_at: :asc).limit(6)
       ),
-      total_count: Event.published.count
+      total_count: Event.published.upcoming.count
     }
   end
 
@@ -20,6 +20,7 @@ class EventsController < InertiaController
     date = params[:date].presence_in(%w[week month])
 
     events = Event.published
+      .upcoming
       .with_attached_cover_image
       .search(q)
       .by_difficulty(difficulty)
@@ -46,6 +47,14 @@ class EventsController < InertiaController
     can_manage = current_user&.id == @event.organizer_id
     inscription = current_user&.inscriptions&.find_by(event: @event)
 
+    if @event.past?
+      allowed = can_manage || inscription&.active?
+      unless allowed
+        redirect_to events_path, alert: "Esta caminata ya pasó"
+        return
+      end
+    end
+
     marked_ids =
       if inscription&.active?
         inscription.gear_item_marks.pluck(:gear_item_id)
@@ -70,7 +79,8 @@ class EventsController < InertiaController
       inscription: inscription&.as_json(only: [ :id, :status ]),
       marked_gear_item_ids: marked_ids,
       whatsapp_url: whatsapp_url_for(@event),
-      confirmation_code: can_manage ? @event.confirmation_code : nil
+      confirmation_code: can_manage ? @event.confirmation_code : nil,
+      is_past: @event.past?
     }
   end
 
@@ -133,7 +143,7 @@ class EventsController < InertiaController
   end
 
   def edit
-    if event_in_past?(@event)
+    if @event.past?
       redirect_to events_mine_path, alert: "No podés editar una caminata que ya pasó"
       return
     end
@@ -148,7 +158,7 @@ class EventsController < InertiaController
   end
 
   def update
-    if event_in_past?(@event)
+    if @event.past?
       redirect_to events_mine_path, alert: "No podés editar una caminata que ya pasó"
       return
     end
@@ -171,6 +181,11 @@ class EventsController < InertiaController
   end
 
   def regenerate_confirmation_code
+    if @event.past?
+      redirect_to "/events/#{@event.id}", alert: "No podés modificar una caminata que ya pasó"
+      return
+    end
+
     @event.regenerate_confirmation_code!
     redirect_to "/events/#{@event.id}", notice: "Código de confirmación regenerado"
   end
@@ -187,10 +202,6 @@ class EventsController < InertiaController
       event_url: "#{request.base_url}/events/#{event.id}"
     )
     ::WhatsappUrl.build(phone: phone, text: text)
-  end
-
-  def event_in_past?(event)
-    event.starts_at < Time.current
   end
 
   def set_event
