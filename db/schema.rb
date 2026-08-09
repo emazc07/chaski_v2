@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_010100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_010000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "badges", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.string "icon", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "rule_key"
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_badges_on_name", unique: true
+    t.index ["rule_key"], name: "index_badges_on_rule_key", unique: true
+    t.index ["slug"], name: "index_badges_on_slug", unique: true
+    t.check_constraint "category::text = ANY (ARRAY['milestone'::character varying, 'destination'::character varying, 'special'::character varying, 'onboarding'::character varying]::text[])", name: "badges_category_check"
   end
 
   create_table "events", force: :cascade do |t|
@@ -102,6 +119,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_010000) do
     t.index ["user_id"], name: "index_inscriptions_on_user_id"
   end
 
+  create_table "user_badges", force: :cascade do |t|
+    t.bigint "badge_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "earned_at", null: false
+    t.bigint "event_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["badge_id"], name: "index_user_badges_on_badge_id"
+    t.index ["event_id"], name: "index_user_badges_on_event_id"
+    t.index ["user_id", "badge_id"], name: "index_user_badges_on_user_id_and_badge_id", unique: true
+    t.index ["user_id"], name: "index_user_badges_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false, null: false
     t.text "bio"
@@ -131,4 +161,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_010000) do
   add_foreign_key "gear_items", "events"
   add_foreign_key "inscriptions", "events"
   add_foreign_key "inscriptions", "users"
+  add_foreign_key "user_badges", "badges"
+  add_foreign_key "user_badges", "events", on_delete: :nullify
+  add_foreign_key "user_badges", "users"
 end
