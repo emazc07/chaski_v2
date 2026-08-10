@@ -79,4 +79,17 @@ class EventTest < ActiveSupport::TestCase
     assert events(:published_hike).upcoming?
     assert_not events(:published_hike).past?
   end
+
+  test "destroying event nullifies user badge event reference" do
+    event = events(:published_hike)
+    user_badge = user_badges(:hiker_first_hike)
+
+    assert_difference "Event.count", -1 do
+      assert_no_difference "UserBadge.count" do
+        event.destroy!
+      end
+    end
+
+    assert_nil user_badge.reload.event_id
+  end
 end
