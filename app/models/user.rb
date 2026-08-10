@@ -13,6 +13,10 @@ class User < ApplicationRecord
 
   has_many :inscriptions, dependent: :destroy
   has_many :inscribed_events, through: :inscriptions, source: :event
+  has_many :user_badges,
+           dependent: :destroy,
+           inverse_of: :user
+  has_many :badges, through: :user_badges
 
   AVATAR_CONTENT_TYPES = %w[image/jpeg image/png image/webp].freeze
   AVATAR_MAX_BYTES = 5.megabytes

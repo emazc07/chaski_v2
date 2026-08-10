@@ -1,0 +1,6 @@
+hiker_first_hike:
+  user: hiker
+  badge: first_hike
+  event: published_hike
+  earned_at: <%= 1.week.ago.to_fs(:db) %>
+  
