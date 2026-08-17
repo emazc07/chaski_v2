@@ -5,6 +5,37 @@ class ProfilesController < InertiaController
     render inertia: "profiles/show"
   end
 
+  def public_show
+    profile_user = User.find(params[:id])
+
+    earned_badges = profile_user.user_badges
+      .joins(:badge)
+      .merge(Badge.active)
+      .includes(:badge)
+      .order("badges.position ASC")
+
+    render inertia: "profiles/public_show", props: {
+      profile: {
+        id: profile_user.id,
+        name: profile_user.name,
+        bio: profile_user.bio,
+        avatar_url: profile_user.avatar_url
+      },
+      badges: earned_badges.map do |user_badge|
+        badge = user_badge.badge
+
+        {
+          id: badge.id,
+          name: badge.name,
+          slug: badge.slug,
+          description: badge.description,
+          image_url: view_context.asset_path("badges/#{badge.icon}.png"),
+          earned_at: user_badge.earned_at.iso8601
+        }
+      end
+    }
+  end
+
   def edit
     render inertia: "profiles/edit", props: {
       profile: profile_props

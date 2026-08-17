@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   patch "/profile", to: "profiles#update"
   patch "/profile/avatar", to: "profiles#update_avatar"
 
+  get "/profiles/:id", to: "profiles#public_show", as: :public_profile
+
   get "/badges", to: "badges#index", as: :badges
 
   post   "/events/:event_id/inscription", to: "inscriptions#create"
