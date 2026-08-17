@@ -2,7 +2,7 @@ first_hike:
   name: Primera caminata
   slug: primera-caminata
   description: Completó su primera caminata
-  icon: hiking_boot
+  icon: first_hike
   category: onboarding
   rule_key: first_completed_hike
   position: 1
@@ -12,7 +12,7 @@ inactive_destination:
   name: Volcán Poás
   slug: volcan-poas
   description: Visitó el Volcán Poás
-  icon: volcano
+  icon: volcano_hero
   category: destination
   position: 2
   active: false
