@@ -1,9 +1,9 @@
 import { Link } from "@inertiajs/react"
 
-import bannerFrame from "@/assets/hiking-banner-frame-2048x1090.png"
+import bannerFrame from "@/assets/HeroBanner5.png"
 
-const BANNER_WIDTH = 2048
-const BANNER_HEIGHT = 1090
+const BANNER_WIDTH = 1536
+const BANNER_HEIGHT = 1024
 
 type CtaLink = {
   label: string
@@ -15,7 +15,6 @@ type HeroBannerProps = {
   titleAccent?: string
   subtitle?: string
   primaryCta?: CtaLink
-  secondaryCta?: CtaLink
   showSearch?: boolean
 }
 
@@ -24,17 +23,11 @@ const defaultPrimaryCta: CtaLink = {
   href: "#proximas-caminatas",
 }
 
-const defaultSecondaryCta: CtaLink = {
-  label: "Soy organizador",
-  href: "/users/sign_up",
-}
-
 export function HeroBanner({
   title = "El punto de encuentro de los caminantes de",
   titleAccent = "Costa Rica.",
   subtitle = "Buscá caminatas, conocé organizadores y sumate al grupo.\nTu próxima aventura empieza acá.",
   primaryCta = defaultPrimaryCta,
-  secondaryCta = defaultSecondaryCta,
   showSearch = false,
 }: HeroBannerProps) {
   return (
@@ -51,12 +44,15 @@ export function HeroBanner({
             className="block h-auto w-full"
           />
 
-          <div className="absolute inset-0 flex items-center justify-center px-8 sm:px-16 lg:px-24">
-            <div className="max-w-md text-center sm:max-w-lg">
-              <h1 className="font-serif-display text-[1.35rem] font-bold leading-tight text-chaski-heading sm:text-[1.65rem] lg:text-[1.85rem]">
+          <div className="absolute inset-0 flex items-start justify-start px-5 pt-10 sm:px-8 sm:pt-14 lg:px-10 lg:pt-16">
+            <div className="w-[min(100%,16.5rem)] text-left sm:w-[34%] sm:max-w-[19rem] lg:max-w-[21rem]">
+              <p className="text-[0.65rem] font-bold tracking-[0.18em] text-chaski-green uppercase sm:text-[0.7rem]">
+                Caminatas en Costa Rica
+              </p>
+              <h1 className="mt-3 font-serif-display text-[1.65rem] font-bold leading-[1.15] text-chaski-heading sm:text-3xl lg:text-[2.35rem]">
                 {title} <span className="text-chaski-terracotta">{titleAccent}</span>
               </h1>
-              <p className="mt-3 text-xs leading-relaxed text-stone-600 sm:text-sm">
+              <p className="mt-4 text-sm leading-relaxed text-stone-600 sm:text-[0.95rem] lg:text-base">
                 {subtitle.includes("\n")
                   ? subtitle.split("\n").map((line) => (
                       <span key={line} className="block">
@@ -65,23 +61,16 @@ export function HeroBanner({
                     ))
                   : subtitle}
               </p>
+              <div className="mt-7">
+                <Link
+                  href={primaryCta.href}
+                  className="inline-flex rounded-xl bg-chaski-green px-7 py-3 text-sm font-bold text-white hover:bg-chaski-green-dark"
+                >
+                  {primaryCta.label}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <Link
-            href={primaryCta.href}
-            className="rounded-full bg-chaski-green px-7 py-3 text-sm font-bold text-white hover:bg-chaski-green-dark"
-          >
-            {primaryCta.label}
-          </Link>
-          <Link
-            href={secondaryCta.href}
-            className="rounded-full border border-stone-300 bg-white px-7 py-3 text-sm font-bold text-stone-800 hover:border-chaski-green hover:text-chaski-green-dark"
-          >
-            {secondaryCta.label}
-          </Link>
         </div>
       </div>
 

@@ -17,15 +17,10 @@ type FooterProps = {
 
 const defaultPlatformLinks: FooterLink[] = [
   { label: "Sobre Chaski", href: "#" },
-  { label: "Cómo funciona", href: "#" },
-  { label: "Para organizadores", href: "#" },
   { label: "Contacto", href: "#" },
 ]
 
-const defaultLegalLinks: FooterLink[] = [
-  { label: "Términos de servicio", href: "#" },
-  { label: "Política de privacidad", href: "#" },
-]
+const defaultLegalLinks: FooterLink[] = [{ label: "Términos de servicio", href: "#" }]
 
 function FooterLinkList({ links }: { links: FooterLink[] }) {
   return (
