@@ -104,7 +104,7 @@ export default function ProfilesShow() {
     {
       title: "Ver perfil",
       description: "Mirá cómo otras personas ven tu perfil público.",
-      disabled: true,
+      href: user ? `/profiles/${user.id}` : undefined,
       icon: <PersonIcon />,
     },
     {

@@ -6,7 +6,7 @@ type BadgeCardProps = {
 
 export function BadgeCard({ badge }: BadgeCardProps) {
   return (
-    <article className="relative flex min-h-[320px] flex-col items-center rounded-xl border border-stone-200 bg-white px-5 py-6 text-center shadow-sm">
+    <article className="relative flex min-h-[320px] flex-col items-center rounded-xl border border-stone-200 bg-white px-5 py-6 text-center shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-chaski-green/30 hover:shadow-md">
       <span
         className={
           badge.earned

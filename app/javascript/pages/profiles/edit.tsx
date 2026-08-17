@@ -40,6 +40,7 @@ function firstError(error: string | string[] | undefined): string | null {
 export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
   const page = usePage<ProfilesEditProps>()
   const serverErrors = errors ?? page.props.errors
+  const currentUserId = page.props.auth?.user?.id
 
   const initialErrorField = (
     ["name", "bio", "location", "birthday", "experience_level", "whatsapp_phone"] as const
@@ -303,9 +304,14 @@ export default function ProfilesEdit({ profile, errors }: ProfilesEditProps) {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-5 text-sm font-semibold text-chaski-green/60">
-                  Ver mi perfil público ›
-                </p>
+                {currentUserId && (
+                  <Link
+                    href={`/profiles/${currentUserId}`}
+                    className="mt-5 inline-flex text-sm font-semibold text-chaski-green hover:text-chaski-green-dark"
+                  >
+                    Ver mi perfil público ›
+                  </Link>
+                )}
               </div>
 
               <div className="rounded-xl border border-stone-200/80 bg-stone-50/80 px-5 py-5">
