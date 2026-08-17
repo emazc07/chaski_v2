@@ -11,6 +11,19 @@ export type AuthUser = {
   avatar_url?: string | null
 }
 
+export type BadgeListItem = {
+  id: number
+  name: string
+  slug: string
+  description: string
+  icon: string
+  image_url: string
+  category: "milestone" | "destination" | "special" | "onboarding"
+  position: number
+  earned: boolean
+  earned_at: string | null
+}
+
 export type Inscription = {
   id: number
   status: string

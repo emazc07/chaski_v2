@@ -122,7 +122,7 @@ export default function ProfilesShow() {
     {
       title: "Mis insignias",
       description: "Revisá los logros e insignias que ganaste en Chaski.",
-      disabled: true,
+      href: "/badges",
       icon: <BadgeIcon />,
     },
     ...(user?.admin

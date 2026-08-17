@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   patch "/profile", to: "profiles#update"
   patch "/profile/avatar", to: "profiles#update_avatar"
 
+  get "/badges", to: "badges#index", as: :badges
+
   post   "/events/:event_id/inscription", to: "inscriptions#create"
   post   "/events/:event_id/inscription/confirm", to: "inscriptions#confirm"
   delete "/events/:event_id/inscription", to: "inscriptions#destroy"
